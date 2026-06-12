@@ -17,10 +17,16 @@ from custom_components.cambridge_audio_infrared.const import (
 
 @pytest.fixture(autouse=True)
 def auto_mock_emitters(mock_emitter):
-    """Patch infrared.async_get_emitters for every test in this module."""
-    with patch(
-        "custom_components.cambridge_audio_infrared.config_flow.infrared.async_get_emitters",
-        return_value=[mock_emitter],
+    """Patch the infrared emitter/receiver lookups for every test in this module."""
+    with (
+        patch(
+            "custom_components.cambridge_audio_infrared.config_flow.infrared.async_get_emitters",
+            return_value=[mock_emitter],
+        ),
+        patch(
+            "custom_components.cambridge_audio_infrared.config_flow.infrared.async_get_receivers",
+            return_value=[],
+        ),
     ):
         yield
 
@@ -107,3 +113,29 @@ async def test_abort_on_duplicate(hass):
 
     assert result["type"] == FlowResultType.ABORT
     assert result["reason"] == "already_configured"
+
+
+async def test_entry_with_receiver(hass):
+    """When a receiver is available it can be stored in the entry data."""
+    from custom_components.cambridge_audio_infrared.const import (
+        CONF_INFRARED_RECEIVER_ENTITY_ID,
+    )
+
+    with patch(
+        "custom_components.cambridge_audio_infrared.config_flow.infrared.async_get_receivers",
+        return_value=["remote.ir_receiver"],
+    ):
+        init = await hass.config_entries.flow.async_init(
+            DOMAIN, context={"source": config_entries.SOURCE_USER}
+        )
+        result = await hass.config_entries.flow.async_configure(
+            init["flow_id"],
+            user_input={
+                CONF_MODEL: MODEL_CXA60,
+                CONF_INFRARED_ENTITY_ID: "remote.ir_blaster",
+                CONF_INFRARED_RECEIVER_ENTITY_ID: "remote.ir_receiver",
+            },
+        )
+
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    assert result["data"][CONF_INFRARED_RECEIVER_ENTITY_ID] == "remote.ir_receiver"

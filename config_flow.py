@@ -9,10 +9,21 @@ from homeassistant.helpers import selector
 
 from .const import (
     CONF_INFRARED_ENTITY_ID,
+    CONF_INFRARED_RECEIVER_ENTITY_ID,
     CONF_MODEL,
     DOMAIN,
     SUPPORTED_MODELS,
 )
+
+
+def _entity_options(hass, entity_ids: list[str]) -> list[selector.SelectOptionDict]:
+    """Build select options from entity_id strings with friendly-name labels."""
+    options = []
+    for entity_id in entity_ids:
+        state = hass.states.get(entity_id)
+        label = state.name if state else entity_id
+        options.append(selector.SelectOptionDict(value=entity_id, label=label))
+    return options
 
 
 class CambridgeAudioIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -26,20 +37,15 @@ class CambridgeAudioIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle the initial step: choose model + IR emitter."""
         errors: dict[str, str] = {}
 
-        # Collect all available IR emitters already configured in HA
+        # Collect available IR emitters and receivers already configured in HA
         emitters = infrared.async_get_emitters(self.hass)
+        receivers = infrared.async_get_receivers(self.hass)
 
         if not emitters:
             return self.async_abort(reason="no_emitters")
 
-        # async_get_emitters returns entity_id strings; look up friendly names
-        emitter_options = []
-        for entity_id in emitters:
-            state = self.hass.states.get(entity_id)
-            label = state.name if state else entity_id
-            emitter_options.append(
-                selector.SelectOptionDict(value=entity_id, label=label)
-            )
+        emitter_options = _entity_options(self.hass, emitters)
+        receiver_options = _entity_options(self.hass, receivers)
 
         if user_input is not None:
             await self.async_set_unique_id(
@@ -52,22 +58,32 @@ class CambridgeAudioIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 data=user_input,
             )
 
-        schema = vol.Schema(
-            {
-                vol.Required(CONF_MODEL): selector.SelectSelector(
+        schema_fields: dict = {
+            vol.Required(CONF_MODEL): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=SUPPORTED_MODELS,
+                    mode=selector.SelectSelectorMode.LIST,
+                )
+            ),
+            vol.Required(CONF_INFRARED_ENTITY_ID): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=emitter_options,
+                    mode=selector.SelectSelectorMode.LIST,
+                )
+            ),
+        }
+        # Receiver is optional: it enables remote-press events but is not
+        # needed to control the amplifier.
+        if receiver_options:
+            schema_fields[vol.Optional(CONF_INFRARED_RECEIVER_ENTITY_ID)] = (
+                selector.SelectSelector(
                     selector.SelectSelectorConfig(
-                        options=SUPPORTED_MODELS,
+                        options=receiver_options,
                         mode=selector.SelectSelectorMode.LIST,
                     )
-                ),
-                vol.Required(CONF_INFRARED_ENTITY_ID): selector.SelectSelector(
-                    selector.SelectSelectorConfig(
-                        options=emitter_options,
-                        mode=selector.SelectSelectorMode.LIST,
-                    )
-                ),
-            }
-        )
+                )
+            )
+        schema = vol.Schema(schema_fields)
 
         return self.async_show_form(
             step_id="user",

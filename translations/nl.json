@@ -6,7 +6,8 @@
         "description": "Kies je Cambridge Audio model en de IR zender die je ESPHome apparaat beschikbaar stelt.",
         "data": {
           "model": "Model",
-          "infrared_entity_id": "IR zender (ESPHome)"
+          "infrared_entity_id": "IR zender (ESPHome)",
+          "infrared_receiver_entity_id": "IR ontvanger (optioneel, activeert events bij afstandsbediening)"
         }
       }
     },

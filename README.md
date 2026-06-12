@@ -31,6 +31,7 @@ This integration is intended for inclusion in the Home Assistant core repository
    ├── config_flow.py
    ├── media_player.py
    ├── button.py
+   ├── event.py
    ├── strings.json
    └── translations/
        ├── en.json
@@ -65,7 +66,8 @@ See the [Contributing to Home Assistant](https://developers.home-assistant.io/do
 2. Search for **Cambridge Audio Infrared**.
 3. Select your amplifier model (e.g. CXA60).
 4. Select the IR emitter entity from your ESPHome IR blaster.
-5. Click **Submit**.
+5. Optionally select an IR receiver to get remote-press events (HA 2026.6+).
+6. Click **Submit**.
 
 Home Assistant will create a device with a `media_player` entity and a set of `button` entities.
 
@@ -117,6 +119,29 @@ A `button` entity is created for every function on the CXA60 remote:
 **Direct mode:** Analogue Stereo Direct
 
 **Triggers:** Trigger A, Trigger B, Trigger C
+
+### Remote events (optional)
+
+If you select an IR *receiver* during setup (requires HA 2026.6+ and an ESPHome
+device with an IR receiver), the integration adds an `event` entity that fires
+whenever a button on the physical Cambridge Audio remote is pressed. The event
+type is the command key (e.g. `volume_up`, `input_d1`), so you can trigger
+automations from the real remote:
+
+```yaml
+trigger:
+  - trigger: state
+    entity_id: event.cambridge_audio_cxa60_remote
+condition:
+  - condition: template
+    value_template: "{{ trigger.to_state.attributes.event_type == 'volume_up' }}"
+action:
+  - action: light.turn_on
+    target:
+      entity_id: light.listening_room
+```
+
+Frames from other RC-5 devices (different system address) are ignored.
 
 ---
 
@@ -193,7 +218,7 @@ This is expected. Because IR is one-way there is no feedback from the amplifier.
 ## Roadmap
 
 - [x] CXA80 support (adds Balanced A1 and Bluetooth inputs)
-- [ ] IR receiver support — trigger automations from the physical remote (requires HA 2026.6+ `InfraredReceiverEntity`)
+- [x] IR receiver support — trigger automations from the physical remote (requires HA 2026.6+ `InfraredReceiverEntity`)
 - [x] Test suite for HA integration quality scale compliance
 
 ---
