@@ -2,8 +2,7 @@
 
 DOMAIN = "cambridge_audio_infrared"
 
-# Cambridge Audio CXA60 uses RC-5 protocol
-# System code (address) = 16
+# Both CXA60 and CXA80 use RC-5 protocol, system code 16
 RC5_SYSTEM_CODE = 16
 
 # RC-5 carrier frequency: 36 kHz (Philips standard)
@@ -13,8 +12,9 @@ CONF_INFRARED_ENTITY_ID = "infrared_entity_id"
 CONF_MODEL = "model"
 
 MODEL_CXA60 = "CXA60"
+MODEL_CXA80 = "CXA80"
 
-SUPPORTED_MODELS = [MODEL_CXA60]
+SUPPORTED_MODELS = [MODEL_CXA60, MODEL_CXA80]
 
 # ─── CXA60 IR command codes (RC-5, decimal) ────────────────────────────────
 
@@ -71,4 +71,20 @@ CXA60_SOURCES: dict[str, str] = {
     "D3": "input_d3",
     "MP3": "input_mp3",
     "USB Audio": "input_usb_audio",
+}
+
+# ─── CXA80 IR command codes (RC-5, decimal) ────────────────────────────────
+# The CXA80 shares all CXA60 codes and adds Balanced A1 and Bluetooth.
+
+CXA80_CODES: dict[str, int] = {
+    **CXA60_CODES,
+    "input_a1_balanced": 104,  # CXA80 only
+    "input_bluetooth": 115,    # CXA80 only
+}
+
+# Map source name → command key (used by media_player select_source)
+CXA80_SOURCES: dict[str, str] = {
+    **CXA60_SOURCES,
+    "A1 Balanced": "input_a1_balanced",
+    "Bluetooth": "input_bluetooth",
 }

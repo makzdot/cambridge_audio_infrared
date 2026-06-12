@@ -2,7 +2,7 @@
 
 A native Home Assistant integration to control Cambridge Audio amplifiers via infrared, built on the IR platform introduced in Home Assistant 2026.4.
 
-Supported models: **CXA60** (CXA80 support planned)
+Supported models: **CXA60**, **CXA80**
 
 ---
 
@@ -186,7 +186,7 @@ This is expected. Because IR is one-way there is no feedback from the amplifier.
 
 ## Roadmap
 
-- [ ] CXA80 support (adds Balanced A1 and Bluetooth inputs)
+- [x] CXA80 support (adds Balanced A1 and Bluetooth inputs)
 - [ ] IR receiver support — trigger automations from the physical remote (requires HA 2026.6+ `InfraredReceiverEntity`)
 - [ ] Full test coverage for HA core submission
 

@@ -15,8 +15,10 @@ from .const import (
     CONF_INFRARED_ENTITY_ID,
     CONF_MODEL,
     CXA60_CODES,
+    CXA80_CODES,
     DOMAIN,
     MODEL_CXA60,
+    MODEL_CXA80,
     RC5_SYSTEM_CODE,
 )
 from .rc5 import make_rc5_command
@@ -35,7 +37,6 @@ class CXAButtonEntityDescription(ButtonEntityDescription):
 # Every entry maps to one button visible in the HA UI.
 
 CXA60_BUTTONS: tuple[CXAButtonEntityDescription, ...] = (
-    # Power
     CXAButtonEntityDescription(key="power_toggle",    name="Power Toggle",        command_key="power_toggle"),
     CXAButtonEntityDescription(key="power_on",        name="Power On",            command_key="power_on"),
     CXAButtonEntityDescription(key="power_off",       name="Power Off",           command_key="power_off"),
@@ -76,6 +77,13 @@ CXA60_BUTTONS: tuple[CXAButtonEntityDescription, ...] = (
     CXAButtonEntityDescription(key="trigger_c",       name="Trigger C",           command_key="trigger_c"),
 )
 
+CXA80_EXTRA_BUTTONS: tuple[CXAButtonEntityDescription, ...] = (
+    CXAButtonEntityDescription(key="input_a1_balanced", name="Input A1 Balanced", command_key="input_a1_balanced"),
+    CXAButtonEntityDescription(key="input_bluetooth",   name="Input Bluetooth",   command_key="input_bluetooth"),
+)
+
+CXA80_BUTTONS = CXA60_BUTTONS + CXA80_EXTRA_BUTTONS
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -88,12 +96,20 @@ async def async_setup_entry(
     ir_entity_id = data[CONF_INFRARED_ENTITY_ID]
 
     if model == MODEL_CXA60:
-        async_add_entities(
-            [
-                CambridgeAudioIRButton(hass, entry, ir_entity_id, description)
-                for description in CXA60_BUTTONS
-            ]
-        )
+        buttons = CXA60_BUTTONS
+        codes = CXA60_CODES
+    elif model == MODEL_CXA80:
+        buttons = CXA80_BUTTONS
+        codes = CXA80_CODES
+    else:
+        return
+
+    async_add_entities(
+        [
+            CambridgeAudioIRButton(hass, entry, ir_entity_id, description, codes)
+            for description in buttons
+        ]
+    )
 
 
 class CambridgeAudioIRButton(ButtonEntity):
@@ -108,10 +124,12 @@ class CambridgeAudioIRButton(ButtonEntity):
         entry: ConfigEntry,
         ir_entity_id: str,
         description: CXAButtonEntityDescription,
+        codes: dict[str, int],
     ) -> None:
         """Initialise the button."""
         self._hass = hass
         self._ir_entity_id = ir_entity_id
+        self._codes = codes
         self.entity_description = description
         self._attr_unique_id = f"{entry.entry_id}_button_{description.key}"
         self._attr_device_info = {
@@ -123,7 +141,7 @@ class CambridgeAudioIRButton(ButtonEntity):
 
     async def async_press(self) -> None:
         """Send the IR command when the button is pressed."""
-        code = CXA60_CODES.get(self.entity_description.command_key)
+        code = self._codes.get(self.entity_description.command_key)
         if code is None:
             _LOGGER.error(
                 "No IR code for command key '%s'",

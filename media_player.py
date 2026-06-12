@@ -19,8 +19,11 @@ from .const import (
     CONF_MODEL,
     CXA60_CODES,
     CXA60_SOURCES,
+    CXA80_CODES,
+    CXA80_SOURCES,
     DOMAIN,
     MODEL_CXA60,
+    MODEL_CXA80,
     RC5_MODULATION,
     RC5_SYSTEM_CODE,
 )
@@ -51,6 +54,11 @@ async def async_setup_entry(
     if model == MODEL_CXA60:
         async_add_entities(
             [CambridgeAudioCXA60MediaPlayer(hass, entry, ir_entity_id)],
+            update_before_add=True,
+        )
+    elif model == MODEL_CXA80:
+        async_add_entities(
+            [CambridgeAudioCXA80MediaPlayer(hass, entry, ir_entity_id)],
             update_before_add=True,
         )
 
@@ -156,6 +164,42 @@ class CambridgeAudioCXA60MediaPlayer(MediaPlayerEntity):
     async def async_select_source(self, source: str) -> None:
         """Select an input source."""
         command_key = CXA60_SOURCES.get(source)
+        if command_key is None:
+            _LOGGER.error("Unknown source: %s", source)
+            return
+        await self._send(command_key)
+        self._source = source
+        self.async_write_ha_state()
+
+
+class CambridgeAudioCXA80MediaPlayer(CambridgeAudioCXA60MediaPlayer):
+    """Cambridge Audio CXA80 — extends CXA60 with Balanced A1 and Bluetooth."""
+
+    _attr_source_list = list(CXA80_SOURCES.keys())
+
+    def __init__(self, hass, entry, ir_entity_id) -> None:
+        """Initialise the CXA80 media player."""
+        super().__init__(hass, entry, ir_entity_id)
+        self._codes = CXA80_CODES
+        self._sources = CXA80_SOURCES
+
+    async def _send(self, command_key: str) -> None:
+        """Send an RC-5 command using the CXA80 code table."""
+        code = CXA80_CODES.get(command_key)
+        if code is None:
+            _LOGGER.error("Unknown command key: %s", command_key)
+            return
+        command = make_rc5_command(address=RC5_SYSTEM_CODE, command=code)
+        await infrared.async_send_command(
+            self._hass,
+            self._ir_entity_id,
+            command,
+            context=self._context,
+        )
+
+    async def async_select_source(self, source: str) -> None:
+        """Select an input source."""
+        command_key = CXA80_SOURCES.get(source)
         if command_key is None:
             _LOGGER.error("Unknown source: %s", source)
             return
