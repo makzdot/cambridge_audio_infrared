@@ -1,7 +1,5 @@
 """Shared fixtures for Cambridge Audio Infrared tests."""
 
-from unittest.mock import MagicMock, patch
-
 import pytest
 
 from custom_components.cambridge_audio_infrared.const import (
@@ -15,11 +13,8 @@ from custom_components.cambridge_audio_infrared.const import (
 
 @pytest.fixture
 def mock_emitter():
-    """A fake IR emitter entity returned by infrared.async_get_emitters."""
-    emitter = MagicMock()
-    emitter.entity_id = "remote.ir_blaster"
-    emitter.name = "IR Blaster"
-    return emitter
+    """A fake IR emitter entity_id as returned by infrared.async_get_emitters."""
+    return "remote.ir_blaster"
 
 
 @pytest.fixture

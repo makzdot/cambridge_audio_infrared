@@ -32,10 +32,14 @@ class CambridgeAudioIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if not emitters:
             return self.async_abort(reason="no_emitters")
 
-        emitter_options = [
-            selector.SelectOptionDict(value=e.entity_id, label=e.name)
-            for e in emitters
-        ]
+        # async_get_emitters returns entity_id strings; look up friendly names
+        emitter_options = []
+        for entity_id in emitters:
+            state = self.hass.states.get(entity_id)
+            label = state.name if state else entity_id
+            emitter_options.append(
+                selector.SelectOptionDict(value=entity_id, label=label)
+            )
 
         if user_input is not None:
             await self.async_set_unique_id(
