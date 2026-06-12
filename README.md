@@ -1,6 +1,6 @@
 # Cambridge Audio Infrared — Home Assistant Integration
 
-A custom Home Assistant integration to control Cambridge Audio amplifiers via infrared, built on the native IR platform introduced in Home Assistant 2026.4.
+A native Home Assistant integration to control Cambridge Audio amplifiers via infrared, built on the IR platform introduced in Home Assistant 2026.4.
 
 Supported models: **CXA60** (CXA80 support planned)
 
@@ -13,37 +13,43 @@ Supported models: **CXA60** (CXA80 support planned)
 
 ---
 
-## Installation
+## Development setup
 
-### Manual
+This integration is intended for inclusion in the Home Assistant core repository. To work on it locally, use the standard HA development environment.
 
-1. Download or clone this repository.
-2. Copy the `cambridge_audio_infrared` folder into your Home Assistant `config/custom_components/` directory:
+### Running locally against Home Assistant core
+
+1. Fork and clone [home-assistant/core](https://github.com/home-assistant/core).
+2. Place the `cambridge_audio_infrared` folder under `homeassistant/components/`:
 
    ```
-   config/
-   └── custom_components/
-       └── cambridge_audio_infrared/
-           ├── __init__.py
-           ├── manifest.json
-           ├── const.py
-           ├── rc5.py
-           ├── config_flow.py
-           ├── media_player.py
-           ├── button.py
-           ├── strings.json
-           └── translations/
-               ├── en.json
-               └── nl.json
+   homeassistant/components/cambridge_audio_infrared/
+   ├── __init__.py
+   ├── manifest.json
+   ├── const.py
+   ├── rc5.py
+   ├── config_flow.py
+   ├── media_player.py
+   ├── button.py
+   ├── strings.json
+   └── translations/
+       ├── en.json
+       └── nl.json
    ```
 
-3. Restart Home Assistant.
+3. Follow the [HA development environment setup guide](https://developers.home-assistant.io/docs/development_environment) to install dependencies and run a local instance.
 
-### HACS (manual repository)
+### Submitting to Home Assistant core
 
-1. In HACS, go to **Integrations → Custom repositories**.
-2. Add the URL of this repository and set the category to **Integration**.
-3. Install it and restart Home Assistant.
+Before opening a pull request against `home-assistant/core`, make sure the integration meets the [Integration Quality Scale](https://developers.home-assistant.io/docs/core/integration-quality-scale/) requirements and passes all checks:
+
+```bash
+python -m script.hassfest          # validates manifest, strings, etc.
+python -m pytest tests/components/cambridge_audio_infrared/
+pre-commit run --all-files
+```
+
+See the [Contributing to Home Assistant](https://developers.home-assistant.io/docs/development_submitting) guide for the full pull request process.
 
 ---
 
@@ -182,7 +188,7 @@ This is expected. Because IR is one-way there is no feedback from the amplifier.
 
 - [ ] CXA80 support (adds Balanced A1 and Bluetooth inputs)
 - [ ] IR receiver support — trigger automations from the physical remote (requires HA 2026.6+ `InfraredReceiverEntity`)
-- [ ] HACS default repository listing
+- [ ] Full test coverage for HA core submission
 
 ---
 
