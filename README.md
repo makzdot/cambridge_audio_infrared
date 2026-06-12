@@ -35,6 +35,12 @@ This integration is intended for inclusion in the Home Assistant core repository
    └── translations/
        ├── en.json
        └── nl.json
+
+   tests/components/cambridge_audio_infrared/
+   ├── conftest.py
+   ├── test_config_flow.py
+   ├── test_media_player.py
+   └── test_rc5.py
    ```
 
 3. Follow the [HA development environment setup guide](https://developers.home-assistant.io/docs/development_environment) to install dependencies and run a local instance.
@@ -165,7 +171,7 @@ The CXA60 uses the **Philips RC-5** protocol:
 | Carrier frequency | 36 kHz |
 | Source | [Official Cambridge Audio IR code document](https://www.cambridgeaudio.com/sites/default/files/compliance/doc/CXA%20IR%20Remote%20Control%20Codes.pdf) |
 
-The integration uses the `RC5Command` class from the [`infrared-protocols`](https://github.com/home-assistant-libs/infrared-protocols) library when available, and falls back to a pure-Python RC-5 encoder that produces equivalent raw timings if the class is not yet present in your HA version.
+The integration uses the `RC5Command` class from the [`infrared-protocols`](https://github.com/home-assistant-libs/infrared-protocols) library (introduced in HA 2026.4). This is a hard dependency — HA 2026.4 or newer is required.
 
 ---
 
@@ -188,7 +194,7 @@ This is expected. Because IR is one-way there is no feedback from the amplifier.
 
 - [x] CXA80 support (adds Balanced A1 and Bluetooth inputs)
 - [ ] IR receiver support — trigger automations from the physical remote (requires HA 2026.6+ `InfraredReceiverEntity`)
-- [ ] Full test coverage for HA core submission
+- [x] Test suite for HA integration quality scale compliance
 
 ---
 
