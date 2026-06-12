@@ -5,9 +5,6 @@ DOMAIN = "cambridge_audio_infrared"
 # Both CXA60 and CXA80 use RC-5 protocol, system code 16
 RC5_SYSTEM_CODE = 16
 
-# RC-5 carrier frequency: 36 kHz (Philips standard)
-RC5_MODULATION = 36000
-
 CONF_INFRARED_ENTITY_ID = "infrared_entity_id"
 CONF_MODEL = "model"
 

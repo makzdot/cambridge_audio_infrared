@@ -24,7 +24,6 @@ from .const import (
     DOMAIN,
     MODEL_CXA60,
     MODEL_CXA80,
-    RC5_MODULATION,
     RC5_SYSTEM_CODE,
 )
 from .rc5 import make_rc5_command
@@ -180,8 +179,6 @@ class CambridgeAudioCXA80MediaPlayer(CambridgeAudioCXA60MediaPlayer):
     def __init__(self, hass, entry, ir_entity_id) -> None:
         """Initialise the CXA80 media player."""
         super().__init__(hass, entry, ir_entity_id)
-        self._codes = CXA80_CODES
-        self._sources = CXA80_SOURCES
 
     async def _send(self, command_key: str) -> None:
         """Send an RC-5 command using the CXA80 code table."""
