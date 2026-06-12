@@ -38,12 +38,12 @@ async def test_user_step_shows_form(hass):
 
 async def test_user_step_creates_entry_cxa60(hass):
     """Submitting valid CXA60 data creates a config entry."""
-    await hass.config_entries.flow.async_init(
+    init = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
 
     result = await hass.config_entries.flow.async_configure(
-        result["flow_id"],
+        init["flow_id"],
         user_input={
             CONF_MODEL: MODEL_CXA60,
             CONF_INFRARED_ENTITY_ID: "remote.ir_blaster",

@@ -4,25 +4,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from homeassistant.components.media_player import MediaPlayerState
-from homeassistant.setup import async_setup_component
 
 from custom_components.cambridge_audio_infrared.const import (
-    CONF_INFRARED_ENTITY_ID,
     CONF_MODEL,
-    DOMAIN,
     MODEL_CXA60,
     MODEL_CXA80,
     RC5_SYSTEM_CODE,
 )
-
-
-def _make_entry(hass, model, entry_id="test_entry"):
-    """Register fake hass.data for a config entry."""
-    hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][entry_id] = {
-        CONF_MODEL: model,
-        CONF_INFRARED_ENTITY_ID: "remote.ir_blaster",
-    }
 
 
 @pytest.fixture
