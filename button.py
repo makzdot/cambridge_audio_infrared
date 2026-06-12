@@ -9,6 +9,7 @@ from homeassistant.components import infrared
 from homeassistant.components.button import ButtonEntity, ButtonEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import (
@@ -132,12 +133,12 @@ class CambridgeAudioIRButton(ButtonEntity):
         self._codes = codes
         self.entity_description = description
         self._attr_unique_id = f"{entry.entry_id}_button_{description.key}"
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": f"Cambridge Audio {entry.data[CONF_MODEL]}",
-            "manufacturer": "Cambridge Audio",
-            "model": entry.data[CONF_MODEL],
-        }
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name=f"Cambridge Audio {entry.data[CONF_MODEL]}",
+            manufacturer="Cambridge Audio",
+            model=entry.data[CONF_MODEL],
+        )
 
     async def async_press(self) -> None:
         """Send the IR command when the button is pressed."""

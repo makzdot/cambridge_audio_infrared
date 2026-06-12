@@ -12,6 +12,7 @@ from homeassistant.components.media_player import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import (
@@ -30,7 +31,6 @@ from .rc5 import make_rc5_command
 
 _LOGGER = logging.getLogger(__name__)
 
-# Features supported by the CXA60 via IR
 _SUPPORTED_FEATURES = (
     MediaPlayerEntityFeature.TURN_ON
     | MediaPlayerEntityFeature.TURN_OFF
@@ -69,10 +69,11 @@ class CambridgeAudioCXA60MediaPlayer(MediaPlayerEntity):
     _attr_name = None  # use device name
     _attr_supported_features = _SUPPORTED_FEATURES
     _attr_source_list = list(CXA60_SOURCES.keys())
-
-    # Assumed state – IR is one-way, we track locally
     _attr_assumed_state = True
     _attr_state = MediaPlayerState.OFF
+
+    _codes = CXA60_CODES
+    _sources = CXA60_SOURCES
 
     def __init__(
         self,
@@ -85,12 +86,12 @@ class CambridgeAudioCXA60MediaPlayer(MediaPlayerEntity):
         self._entry = entry
         self._ir_entity_id = ir_entity_id
         self._attr_unique_id = f"{entry.entry_id}_media_player"
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": f"Cambridge Audio {entry.data[CONF_MODEL]}",
-            "manufacturer": "Cambridge Audio",
-            "model": entry.data[CONF_MODEL],
-        }
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name=f"Cambridge Audio {entry.data[CONF_MODEL]}",
+            manufacturer="Cambridge Audio",
+            model=entry.data[CONF_MODEL],
+        )
         self._source: str | None = None
         self._muted: bool = False
 
@@ -115,15 +116,12 @@ class CambridgeAudioCXA60MediaPlayer(MediaPlayerEntity):
 
     async def _send(self, command_key: str) -> None:
         """Send an RC-5 command to the amplifier."""
-        code = CXA60_CODES.get(command_key)
+        code = self._codes.get(command_key)
         if code is None:
             _LOGGER.error("Unknown command key: %s", command_key)
             return
 
-        command = make_rc5_command(
-            address=RC5_SYSTEM_CODE,
-            command=code,
-        )
+        command = make_rc5_command(address=RC5_SYSTEM_CODE, command=code)
         await infrared.async_send_command(
             self._hass,
             self._ir_entity_id,
@@ -153,16 +151,13 @@ class CambridgeAudioCXA60MediaPlayer(MediaPlayerEntity):
 
     async def async_mute_volume(self, mute: bool) -> None:
         """Mute or unmute the amplifier."""
-        if mute:
-            await self._send("mute_on")
-        else:
-            await self._send("mute_off")
+        await self._send("mute_on" if mute else "mute_off")
         self._muted = mute
         self.async_write_ha_state()
 
     async def async_select_source(self, source: str) -> None:
         """Select an input source."""
-        command_key = CXA60_SOURCES.get(source)
+        command_key = self._sources.get(source)
         if command_key is None:
             _LOGGER.error("Unknown source: %s", source)
             return
@@ -175,31 +170,5 @@ class CambridgeAudioCXA80MediaPlayer(CambridgeAudioCXA60MediaPlayer):
     """Cambridge Audio CXA80 — extends CXA60 with Balanced A1 and Bluetooth."""
 
     _attr_source_list = list(CXA80_SOURCES.keys())
-
-    def __init__(self, hass, entry, ir_entity_id) -> None:
-        """Initialise the CXA80 media player."""
-        super().__init__(hass, entry, ir_entity_id)
-
-    async def _send(self, command_key: str) -> None:
-        """Send an RC-5 command using the CXA80 code table."""
-        code = CXA80_CODES.get(command_key)
-        if code is None:
-            _LOGGER.error("Unknown command key: %s", command_key)
-            return
-        command = make_rc5_command(address=RC5_SYSTEM_CODE, command=code)
-        await infrared.async_send_command(
-            self._hass,
-            self._ir_entity_id,
-            command,
-            context=self._context,
-        )
-
-    async def async_select_source(self, source: str) -> None:
-        """Select an input source."""
-        command_key = CXA80_SOURCES.get(source)
-        if command_key is None:
-            _LOGGER.error("Unknown source: %s", source)
-            return
-        await self._send(command_key)
-        self._source = source
-        self.async_write_ha_state()
+    _codes = CXA80_CODES
+    _sources = CXA80_SOURCES

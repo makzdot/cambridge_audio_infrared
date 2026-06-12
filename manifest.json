@@ -4,7 +4,7 @@
   "codeowners": [],
   "config_flow": true,
   "dependencies": ["infrared"],
-  "documentation": "https://github.com/your-repo/cambridge_audio_infrared",
+  "documentation": "https://www.home-assistant.io/integrations/cambridge_audio_infrared",
   "integration_type": "device",
   "iot_class": "assumed_state",
   "requirements": [],
