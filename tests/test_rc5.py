@@ -13,14 +13,14 @@ def test_make_rc5_command_passes_args():
     ):
         from custom_components.cambridge_audio_infrared.rc5 import make_rc5_command
 
-        result = make_rc5_command(address=16, command=14, toggle=True)
+        result = make_rc5_command(address=16, command=14, toggle=1)
 
-    mock_rc5.assert_called_once_with(address=16, command=14, toggle=True)
+    mock_rc5.assert_called_once_with(address=16, command=14, toggle=1)
     assert result is mock_cmd
 
 
 def test_make_rc5_command_toggle_defaults_false():
-    """toggle defaults to False when not supplied."""
+    """toggle defaults to 0 when not supplied."""
     mock_rc5 = MagicMock()
 
     with patch(
@@ -31,4 +31,4 @@ def test_make_rc5_command_toggle_defaults_false():
         make_rc5_command(address=16, command=12)
 
     _, kwargs = mock_rc5.call_args
-    assert kwargs["toggle"] is False
+    assert kwargs["toggle"] == 0
