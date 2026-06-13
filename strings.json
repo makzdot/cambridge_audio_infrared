@@ -3,17 +3,17 @@
     "step": {
       "user": {
         "title": "Set up Cambridge Audio",
-        "description": "Choose your Cambridge Audio model and the IR emitter exposed by your ESPHome device.",
+        "description": "Choose your Cambridge Audio model and the IR emitter to send commands through.",
         "data": {
           "model": "Model",
-          "infrared_entity_id": "IR emitter (ESPHome)",
+          "infrared_entity_id": "IR emitter",
           "infrared_receiver_entity_id": "IR receiver (optional, enables remote press events)"
         }
       }
     },
     "abort": {
       "already_configured": "This device is already configured.",
-      "no_emitters": "No IR emitters found. First set up an ESPHome IR proxy via Settings → Devices & Services."
+      "no_emitters": "No IR emitters found. First set up an IR transmitter (for example an ESPHome IR blaster) via Settings → Devices & Services."
     }
   }
 }

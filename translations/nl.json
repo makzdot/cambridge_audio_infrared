@@ -3,17 +3,17 @@
     "step": {
       "user": {
         "title": "Cambridge Audio instellen",
-        "description": "Kies je Cambridge Audio model en de IR zender die je ESPHome apparaat beschikbaar stelt.",
+        "description": "Kies je Cambridge Audio model en de IR zender waarmee commando's worden verstuurd.",
         "data": {
           "model": "Model",
-          "infrared_entity_id": "IR zender (ESPHome)",
+          "infrared_entity_id": "IR zender",
           "infrared_receiver_entity_id": "IR ontvanger (optioneel, activeert events bij afstandsbediening)"
         }
       }
     },
     "abort": {
       "already_configured": "Dit apparaat is al geconfigureerd.",
-      "no_emitters": "Geen IR zenders gevonden. Stel eerst een ESPHome IR proxy in via Instellingen → Apparaten & Diensten."
+      "no_emitters": "Geen IR zenders gevonden. Stel eerst een IR zender in (bijvoorbeeld een ESPHome IR blaster) via Instellingen → Apparaten & Diensten."
     }
   }
 }

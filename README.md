@@ -9,7 +9,7 @@ Supported models: **CXA60**, **CXA80**
 ## Requirements
 
 - Home Assistant 2026.4 or newer
-- An ESPHome-based IR blaster already set up as an infrared emitter in Home Assistant (see [ESPHome Infrared Proxies](https://github.com/esphome/infrared-proxies))
+- Any IR transmitter exposed to Home Assistant as an infrared emitter. An ESPHome-based IR blaster is the most common option (see [ESPHome Infrared Proxies](https://github.com/esphome/infrared-proxies)), but any integration that registers with the [infrared platform](https://www.home-assistant.io/integrations/infrared) works.
 
 ---
 
@@ -65,7 +65,7 @@ See the [Contributing to Home Assistant](https://developers.home-assistant.io/do
 1. Go to **Settings → Devices & Services → Add Integration**.
 2. Search for **Cambridge Audio Infrared**.
 3. Select your amplifier model (e.g. CXA60).
-4. Select the IR emitter entity from your ESPHome IR blaster.
+4. Select the IR emitter entity (e.g. from your ESPHome IR blaster).
 5. Optionally select an IR receiver to get remote-press events (HA 2026.6+).
 6. Click **Submit**.
 
@@ -122,8 +122,9 @@ A `button` entity is created for every function on the CXA60 remote:
 
 ### Remote events (optional)
 
-If you select an IR *receiver* during setup (requires HA 2026.6+ and an ESPHome
-device with an IR receiver), the integration adds an `event` entity that fires
+If you select an IR *receiver* during setup (requires HA 2026.6+ and any IR
+receiver exposed to the infrared platform, such as an ESPHome device with an IR
+receiver), the integration adds an `event` entity that fires
 whenever a button on the physical Cambridge Audio remote is pressed. The event
 type is the command key (e.g. `volume_up`, `input_d1`), so you can trigger
 automations from the real remote:
@@ -203,7 +204,7 @@ The integration uses the `RC5Command` class from the [`infrared-protocols`](http
 ## Troubleshooting
 
 **"No IR emitters found" during setup**
-Make sure your ESPHome IR blaster is already added to Home Assistant via Settings → Devices & Services before setting up this integration. The ESPHome device must expose an infrared emitter entity (requires ESPHome firmware with the IR transmitter component configured as an HA infrared proxy).
+Make sure an IR transmitter is already added to Home Assistant via Settings → Devices & Services before setting up this integration, and that it exposes an infrared emitter entity. With ESPHome this means firmware with the IR transmitter component configured as an HA infrared proxy; other infrared-platform integrations work too.
 
 **Commands are sent but the amplifier does not respond**
 - Check that the IR blaster is physically pointed at the CXA60's IR receiver window (front panel, bottom centre).
