@@ -74,6 +74,13 @@ class CambridgeAudioRemoteEvent(
     def _handle_signal(self, signal: infrared.InfraredReceivedSignal) -> None:
         """Decode a received IR signal and fire the matching event."""
         decoded = decode_rc5(signal.timings)
+        _LOGGER.debug(
+            "Received IR signal: modulation=%s, %d timings=%s, decoded=%s",
+            signal.modulation,
+            len(signal.timings),
+            signal.timings,
+            decoded,
+        )
         if decoded is None:
             return
         address, command, toggle = decoded
