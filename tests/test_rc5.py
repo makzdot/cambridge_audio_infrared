@@ -68,6 +68,30 @@ def test_decode_tolerates_timing_jitter():
 @pytest.mark.parametrize(
     "timings",
     [
+        # Real captures from a TSOP receiver (inverted: bursts are negative)
+        # with a trailing idle gap. Both decode to input_d2 (code 106).
+        [-1790, 882, -907, 1765, -1791, 881, -928, 853, -904, 878, -900,
+         1772, -1794, 1768, -1799, 1764, -1791, 10000],
+        [-1798, 1765, -902, 884, -1793, 907, -881, 873, -905, 877, -901,
+         1773, -1794, 1769, -1797, 1767, -1799, 10000],
+    ],
+)
+def test_decode_real_inverted_capture(timings):
+    """Real inverting-receiver captures decode despite flipped polarity.
+
+    Regression guard: the first decoder assumed positive=mark and exactly
+    28 half-bits, so it rejected real hardware output outright.
+    """
+    decoded = decode_rc5(timings)
+    assert decoded is not None
+    address, command, _toggle = decoded
+    assert address == RC5_SYSTEM_CODE
+    assert command == 106  # input_d2
+
+
+@pytest.mark.parametrize(
+    "timings",
+    [
         [],                       # empty
         [9000, -4500, 560],       # NEC-style leader
         [889, -889],              # too short

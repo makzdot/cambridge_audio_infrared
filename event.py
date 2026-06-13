@@ -74,21 +74,18 @@ class CambridgeAudioRemoteEvent(
     def _handle_signal(self, signal: infrared.InfraredReceivedSignal) -> None:
         """Decode a received IR signal and fire the matching event."""
         decoded = decode_rc5(signal.timings)
-        _LOGGER.debug(
-            "Received IR signal: modulation=%s, %d timings=%s, decoded=%s",
-            signal.modulation,
-            len(signal.timings),
-            signal.timings,
-            decoded,
-        )
         if decoded is None:
+            # Log the raw timings only on failure — that's when they're needed.
+            _LOGGER.debug("Could not decode RC-5 from timings: %s", signal.timings)
             return
         address, command, toggle = decoded
         if address != RC5_SYSTEM_CODE:
+            _LOGGER.debug("Ignoring RC-5 frame for address %d", address)
             return
         command_key = self._code_to_key.get(command)
         if command_key is None:
             _LOGGER.debug("Received unmapped RC-5 command %d", command)
             return
+        _LOGGER.debug("Remote press: %s (toggle=%d)", command_key, toggle)
         self._trigger_event(command_key, {"toggle": toggle})
         self.async_write_ha_state()
