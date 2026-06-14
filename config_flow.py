@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.components import infrared
+from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.helpers import selector
 
 from .const import (
@@ -36,11 +39,12 @@ class CambridgeAudioIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
     # Carries step_user input forward to async_step_cxn for the CXN flow.
-    _pending: dict = {}
+    # Annotation-only: set per-instance in async_step_user before use.
+    _pending: dict[str, Any]
 
     async def async_step_user(
-        self, user_input: dict | None = None
-    ) -> config_entries.FlowResult:
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
         """Handle the initial step: choose model + IR emitter."""
         errors: dict[str, str] = {}
 
@@ -104,8 +108,8 @@ class CambridgeAudioIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_cxn(
-        self, user_input: dict | None = None
-    ) -> config_entries.FlowResult:
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
         """Choose the CXN's base RC-5 system code (24 or 28)."""
         if user_input is not None:
             data = {

@@ -2,26 +2,73 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN
+from .const import (
+    CONF_CXN_SYSTEM_CODE,
+    CONF_INFRARED_ENTITY_ID,
+    CONF_INFRARED_RECEIVER_ENTITY_ID,
+    CONF_MODEL,
+    CXA60_CODES,
+    CXA80_CODES,
+    CXN_SYSTEM_CODE_DEFAULT,
+    MODEL_CXA80,
+    MODEL_CXN100,
+    RC5_SYSTEM_CODE,
+    resolve_cxn_codes,
+)
 
-PLATFORMS = ["media_player", "button", "event"]
+PLATFORMS: list[Platform] = [
+    Platform.MEDIA_PLAYER,
+    Platform.BUTTON,
+    Platform.EVENT,
+]
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+@dataclass
+class CambridgeAudioRuntimeData:
+    """Runtime data for a configured Cambridge Audio device."""
+
+    model: str
+    emitter_entity_id: str
+    receiver_entity_id: str | None
+    # Resolved {command_key: (system_code, command)} for this device.
+    codes: dict[str, tuple[int, int]]
+
+
+type CambridgeAudioConfigEntry = ConfigEntry[CambridgeAudioRuntimeData]
+
+
+def _build_codes(data: dict) -> dict[str, tuple[int, int]]:
+    """Resolve the (system_code, command) table for the configured model."""
+    model = data[CONF_MODEL]
+    if model == MODEL_CXN100:
+        base = int(data.get(CONF_CXN_SYSTEM_CODE, CXN_SYSTEM_CODE_DEFAULT))
+        return resolve_cxn_codes(base)
+    table = CXA80_CODES if model == MODEL_CXA80 else CXA60_CODES
+    return {key: (RC5_SYSTEM_CODE, code) for key, code in table.items()}
+
+
+async def async_setup_entry(
+    hass: HomeAssistant, entry: CambridgeAudioConfigEntry
+) -> bool:
     """Set up Cambridge Audio Infrared from a config entry."""
-    hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][entry.entry_id] = entry.data
-
+    entry.runtime_data = CambridgeAudioRuntimeData(
+        model=entry.data[CONF_MODEL],
+        emitter_entity_id=entry.data[CONF_INFRARED_ENTITY_ID],
+        receiver_entity_id=entry.data.get(CONF_INFRARED_RECEIVER_ENTITY_ID),
+        codes=_build_codes(entry.data),
+    )
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_unload_entry(
+    hass: HomeAssistant, entry: CambridgeAudioConfigEntry
+) -> bool:
     """Unload a config entry."""
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-    if unload_ok:
-        hass.data[DOMAIN].pop(entry.entry_id)
-    return unload_ok
+    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)

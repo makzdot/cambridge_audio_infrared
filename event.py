@@ -11,57 +11,29 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import (
-    CONF_CXN_SYSTEM_CODE,
-    CONF_INFRARED_RECEIVER_ENTITY_ID,
-    CONF_MODEL,
-    CXA60_CODES,
-    CXA80_CODES,
-    CXN_SYSTEM_CODE_DEFAULT,
-    DOMAIN,
-    MODEL_CXA60,
-    MODEL_CXA80,
-    MODEL_CXN100,
-    RC5_SYSTEM_CODE,
-    resolve_cxn_codes,
-)
+from . import CambridgeAudioConfigEntry
+from .const import CONF_MODEL, DOMAIN
 from .rc5 import decode_rc5
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def _resolved_codes(data: dict) -> dict[str, tuple[int, int]] | None:
-    """Return the {command_key: (system_code, command)} table for the model.
-
-    Returns None for models that can't be decoded into events.
-    """
-    model = data[CONF_MODEL]
-    if model == MODEL_CXA60:
-        return {key: (RC5_SYSTEM_CODE, code) for key, code in CXA60_CODES.items()}
-    if model == MODEL_CXA80:
-        return {key: (RC5_SYSTEM_CODE, code) for key, code in CXA80_CODES.items()}
-    if model == MODEL_CXN100:
-        base = int(data.get(CONF_CXN_SYSTEM_CODE, CXN_SYSTEM_CODE_DEFAULT))
-        return resolve_cxn_codes(base)
-    return None
-
-
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: ConfigEntry,
+    entry: CambridgeAudioConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the remote event entity if an IR receiver was configured."""
-    data = hass.data[DOMAIN][entry.entry_id]
-    receiver_entity_id = data.get(CONF_INFRARED_RECEIVER_ENTITY_ID)
+    receiver_entity_id = entry.runtime_data.receiver_entity_id
     if not receiver_entity_id:
         return
 
-    codes = _resolved_codes(data)
-    if codes is None:
-        return
     async_add_entities(
-        [CambridgeAudioRemoteEvent(entry, receiver_entity_id, codes)]
+        [
+            CambridgeAudioRemoteEvent(
+                entry, receiver_entity_id, entry.runtime_data.codes
+            )
+        ]
     )
 
 

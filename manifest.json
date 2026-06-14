@@ -1,7 +1,7 @@
 {
   "domain": "cambridge_audio_infrared",
   "name": "Cambridge Audio Infrared",
-  "codeowners": [],
+  "codeowners": ["@makzdot"],
   "config_flow": true,
   "dependencies": ["infrared"],
   "documentation": "https://www.home-assistant.io/integrations/cambridge_audio_infrared",

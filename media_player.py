@@ -15,8 +15,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from . import CambridgeAudioConfigEntry
 from .const import (
-    CONF_INFRARED_ENTITY_ID,
     CONF_MODEL,
     CXA60_CODES,
     CXA60_SOURCES,
@@ -42,13 +42,12 @@ _SUPPORTED_FEATURES = (
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: ConfigEntry,
+    entry: CambridgeAudioConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Cambridge Audio media player from a config entry."""
-    data = hass.data[DOMAIN][entry.entry_id]
-    model = data[CONF_MODEL]
-    ir_entity_id = data[CONF_INFRARED_ENTITY_ID]
+    model = entry.runtime_data.model
+    ir_entity_id = entry.runtime_data.emitter_entity_id
 
     if model == MODEL_CXA60:
         async_add_entities(

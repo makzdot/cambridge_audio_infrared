@@ -12,19 +12,13 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from . import CambridgeAudioConfigEntry
 from .const import (
-    CONF_CXN_SYSTEM_CODE,
-    CONF_INFRARED_ENTITY_ID,
     CONF_MODEL,
-    CXA60_CODES,
-    CXA80_CODES,
-    CXN_SYSTEM_CODE_DEFAULT,
     DOMAIN,
     MODEL_CXA60,
     MODEL_CXA80,
     MODEL_CXN100,
-    RC5_SYSTEM_CODE,
-    resolve_cxn_codes,
 )
 from .rc5 import make_rc5_command
 
@@ -142,28 +136,22 @@ CXN_BUTTONS: tuple[CXAButtonEntityDescription, ...] = (
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: ConfigEntry,
+    entry: CambridgeAudioConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Cambridge Audio button entities."""
-    data = hass.data[DOMAIN][entry.entry_id]
-    model = data[CONF_MODEL]
-    ir_entity_id = data[CONF_INFRARED_ENTITY_ID]
-
-    # Every model resolves to a {command_key: (system_code, command)} table.
+    model = entry.runtime_data.model
     if model == MODEL_CXA60:
         buttons = CXA60_BUTTONS
-        codes = {key: (RC5_SYSTEM_CODE, code) for key, code in CXA60_CODES.items()}
     elif model == MODEL_CXA80:
         buttons = CXA80_BUTTONS
-        codes = {key: (RC5_SYSTEM_CODE, code) for key, code in CXA80_CODES.items()}
     elif model == MODEL_CXN100:
         buttons = CXN_BUTTONS
-        base = int(data.get(CONF_CXN_SYSTEM_CODE, CXN_SYSTEM_CODE_DEFAULT))
-        codes = resolve_cxn_codes(base)
     else:
         return
 
+    ir_entity_id = entry.runtime_data.emitter_entity_id
+    codes = entry.runtime_data.codes
     async_add_entities(
         [
             CambridgeAudioIRButton(hass, entry, ir_entity_id, description, codes)
