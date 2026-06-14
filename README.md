@@ -15,40 +15,61 @@ Supported models: **CXA60**, **CXA80** (amplifiers), **CXN100** (network player)
 
 ## Development setup
 
-This integration is intended for inclusion in the Home Assistant core repository. To work on it locally, use the standard HA development environment.
+### Repository layout
 
-### Running locally against Home Assistant core
+The integration is a standard custom component: the code lives under
+`custom_components/`, with the test suite and tooling at the repository root.
 
-1. Fork and clone [home-assistant/core](https://github.com/home-assistant/core).
-2. Place the `cambridge_audio_infrared` folder under `homeassistant/components/`:
+```
+custom_components/cambridge_audio_infrared/
+├── __init__.py
+├── manifest.json
+├── const.py
+├── rc5.py
+├── config_flow.py
+├── media_player.py
+├── button.py
+├── event.py
+├── strings.json
+└── translations/
+    ├── en.json
+    └── nl.json
 
-   ```
-   homeassistant/components/cambridge_audio_infrared/
-   ├── __init__.py
-   ├── manifest.json
-   ├── const.py
-   ├── rc5.py
-   ├── config_flow.py
-   ├── media_player.py
-   ├── button.py
-   ├── event.py
-   ├── strings.json
-   └── translations/
-       ├── en.json
-       └── nl.json
+tests/
+├── conftest.py
+├── test_rc5.py
+├── test_cxn.py
+├── test_config_flow.py
+├── test_media_player.py
+└── test_event.py
+```
 
-   tests/components/cambridge_audio_infrared/
-   ├── conftest.py
-   ├── test_config_flow.py
-   ├── test_media_player.py
-   └── test_rc5.py
-   ```
+### Installing as a custom component
 
-3. Follow the [HA development environment setup guide](https://developers.home-assistant.io/docs/development_environment) to install dependencies and run a local instance.
+Copy (or symlink) `custom_components/cambridge_audio_infrared/` into your Home
+Assistant config directory at `config/custom_components/cambridge_audio_infrared/`
+and restart Home Assistant.
+
+### Running the tests
+
+```bash
+python -m venv .venv
+.venv/bin/pip install -r requirements_test.txt
+.venv/bin/pytest
+```
+
+The full suite needs Home Assistant **2026.6+** (for the `infrared` platform and
+`InfraredReceiverEntity`). The protocol tests in `test_rc5.py` are independent of
+Home Assistant and run against any reasonably recent `infrared-protocols`.
 
 ### Submitting to Home Assistant core
 
-Before opening a pull request against `home-assistant/core`, make sure the integration meets the [Integration Quality Scale](https://developers.home-assistant.io/docs/core/integration-quality-scale/) requirements and passes all checks:
+For core inclusion the integration would move to
+`homeassistant/components/cambridge_audio_infrared/` (and its tests to
+`tests/components/cambridge_audio_infrared/`) in a fork of
+[home-assistant/core](https://github.com/home-assistant/core). Make sure it meets
+the [Integration Quality Scale](https://developers.home-assistant.io/docs/core/integration-quality-scale/)
+requirements and passes all checks:
 
 ```bash
 python -m script.hassfest          # validates manifest, strings, etc.
