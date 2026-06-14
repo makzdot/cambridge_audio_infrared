@@ -60,7 +60,10 @@ python -m venv .venv
 
 The full suite needs Home Assistant **2026.6+** (for the `infrared` platform and
 `InfraredReceiverEntity`). The protocol tests in `test_rc5.py` are independent of
-Home Assistant and run against any reasonably recent `infrared-protocols`.
+Home Assistant and run against any reasonably recent `infrared-protocols`. When
+the `infrared` platform isn't present in the installed Home Assistant, the
+platform-dependent test modules are skipped automatically (see
+`tests/conftest.py`), so the suite stays green on the protocol tests.
 
 ### Submitting to Home Assistant core
 
