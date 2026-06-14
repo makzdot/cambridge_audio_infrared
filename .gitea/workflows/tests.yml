@@ -1,0 +1,16 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    container: python:3.13-bookworm
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: pip install --upgrade pip -r requirements_test.txt
+      - name: Run tests
+        run: pytest
