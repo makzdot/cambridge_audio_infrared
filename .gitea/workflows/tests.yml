@@ -12,6 +12,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
+      - name: Diagnose available PyPI versions (temporary)
+        run: |
+          python -m pip install --upgrade pip
+          echo "=== homeassistant ==="
+          pip index versions homeassistant || true
+          echo "=== pytest-homeassistant-custom-component ==="
+          pip index versions pytest-homeassistant-custom-component || true
       - name: Install test dependencies
         run: pip install --upgrade pip -r requirements_test.txt
       - name: Run tests
