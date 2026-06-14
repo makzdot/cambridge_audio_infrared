@@ -35,6 +35,7 @@ custom_components/cambridge_audio_infrared/
     ├── en.json
     └── nl.json
 
+
 tests/
 ├── conftest.py
 ├── test_rc5.py
