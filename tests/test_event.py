@@ -8,19 +8,25 @@ from custom_components.cambridge_audio_infrared.const import (
     CONF_MODEL,
     CXA60_CODES,
     MODEL_CXA60,
+    MODEL_CXN100,
     RC5_SYSTEM_CODE,
+    resolve_cxn_codes,
 )
 from custom_components.cambridge_audio_infrared.event import (
     CambridgeAudioRemoteEvent,
 )
 from custom_components.cambridge_audio_infrared.rc5 import make_rc5_command
 
+# CXA codes all live on system code 16; wrap into the (system, command) shape.
+_CXA60_TABLE = {key: (RC5_SYSTEM_CODE, code) for key, code in CXA60_CODES.items()}
+_CXN_TABLE = resolve_cxn_codes(24)
 
-def _make_entity():
+
+def _make_entity(table=_CXA60_TABLE, model=MODEL_CXA60):
     entry = MagicMock(spec=ConfigEntry)
     entry.entry_id = "test"
-    entry.data = {CONF_MODEL: MODEL_CXA60}
-    return CambridgeAudioRemoteEvent(entry, "remote.ir_receiver", CXA60_CODES)
+    entry.data = {CONF_MODEL: model}
+    return CambridgeAudioRemoteEvent(entry, "remote.ir_receiver", table)
 
 
 def _signal_for(command: int, address: int = RC5_SYSTEM_CODE):
@@ -76,3 +82,35 @@ def test_event_types_match_code_table():
     """The entity advertises every command key as a possible event type."""
     entity = _make_entity()
     assert set(entity._attr_event_types) == set(CXA60_CODES)
+
+
+# ── CXN (multi system-code) ──────────────────────────────────────────────────
+
+def test_cxn_play_pause_fires_event():
+    """A CXN Play/Pause frame (system 24) fires on a CXN event entity."""
+    entity = _make_entity(table=_CXN_TABLE, model=MODEL_CXN100)
+    with (
+        patch.object(entity, "_trigger_event") as mock_trigger,
+        patch.object(entity, "async_write_ha_state"),
+    ):
+        entity._handle_signal(_signal_for(24, address=24))  # play_pause
+
+    mock_trigger.assert_called_once_with("play_pause", {"toggle": 0})
+
+
+def test_cxn_entity_ignores_amp_navigation_frame():
+    """A CXA-only frame (system 16, source_up=99) means nothing to the CXN."""
+    entity = _make_entity(table=_CXN_TABLE, model=MODEL_CXN100)
+    with patch.object(entity, "_trigger_event") as mock_trigger:
+        entity._handle_signal(_signal_for(99, address=RC5_SYSTEM_CODE))
+
+    mock_trigger.assert_not_called()
+
+
+def test_cxa_entity_ignores_cxn_network_frame():
+    """A CXN network frame (system 24) means nothing to a CXA event entity."""
+    entity = _make_entity()  # CXA60
+    with patch.object(entity, "_trigger_event") as mock_trigger:
+        entity._handle_signal(_signal_for(12, address=24))  # CXN 'home'
+
+    mock_trigger.assert_not_called()

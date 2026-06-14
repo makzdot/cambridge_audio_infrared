@@ -159,7 +159,12 @@ action:
       entity_id: light.listening_room
 ```
 
-Frames from other RC-5 devices (different system address) are ignored.
+Each device's event entity only reacts to its own RC-5 system code(s), so the
+universal **RC-CXA/C/N** remote drives the matching device: amplifier buttons
+(system code 16) fire the CXA entity, network-player buttons (24/28) fire the
+CXN entity. Frames for unrelated devices are ignored. One documented overlap:
+the CXN's pre-amp volume/mute share system code 16 with the amplifiers, so those
+presses may fire on both a CXA and a CXN event entity.
 
 ---
 
