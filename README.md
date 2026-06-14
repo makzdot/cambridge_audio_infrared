@@ -1,8 +1,8 @@
 # Cambridge Audio Infrared — Home Assistant Integration
 
-A native Home Assistant integration to control Cambridge Audio amplifiers via infrared, built on the IR platform introduced in Home Assistant 2026.4.
+A native Home Assistant integration to control Cambridge Audio devices via infrared, built on the IR platform introduced in Home Assistant 2026.4.
 
-Supported models: **CXA60**, **CXA80**
+Supported models: **CXA60**, **CXA80** (amplifiers), **CXN100** (network player)
 
 ---
 
@@ -119,6 +119,23 @@ A `button` entity is created for every function on the CXA60 remote:
 **Direct mode:** Analogue Stereo Direct
 
 **Triggers:** Trigger A, Trigger B, Trigger C
+
+### CXN100 (network player)
+
+The CXN100 is a network streamer, so it's exposed as a **virtual remote**: a set
+of `button` entities only (no media player — IR is one-way and can't read back
+transport state; for full two-way control use the official network integration).
+
+Buttons cover transport (Play/Pause, Stop, Skip Previous/Next, Random, Repeat),
+navigation (Home, Up/Down/Left/Right, Select, Return, Info, More, Digital Input
+Menu), inputs (Bluetooth, USB Audio, D1, D2), Presets 1–8, power, display, and
+volume/mute (the last only respond in the CXN's Digital Pre-amp mode).
+
+> **System code:** the CXN's main commands use a base RC-5 system code that the
+> device exposes as switchable between **24** and **28** (Settings menu). Pick
+> the matching value during setup. Power commands use the shared CX system code
+> 25 (so Power On/Off also reach a CXA amplifier on the same code), while a
+> CXN-only Power Toggle avoids that.
 
 ### Remote events (optional)
 

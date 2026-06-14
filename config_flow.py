@@ -8,10 +8,14 @@ from homeassistant.components import infrared
 from homeassistant.helpers import selector
 
 from .const import (
+    CONF_CXN_SYSTEM_CODE,
     CONF_INFRARED_ENTITY_ID,
     CONF_INFRARED_RECEIVER_ENTITY_ID,
     CONF_MODEL,
+    CXN_SYSTEM_CODE_DEFAULT,
+    CXN_SYSTEM_CODES,
     DOMAIN,
+    MODEL_CXN100,
     SUPPORTED_MODELS,
 )
 
@@ -30,6 +34,9 @@ class CambridgeAudioIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Cambridge Audio Infrared."""
 
     VERSION = 1
+
+    # Carries step_user input forward to async_step_cxn for the CXN flow.
+    _pending: dict = {}
 
     async def async_step_user(
         self, user_input: dict | None = None
@@ -52,6 +59,11 @@ class CambridgeAudioIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 f"{user_input[CONF_MODEL]}_{user_input[CONF_INFRARED_ENTITY_ID]}"
             )
             self._abort_if_unique_id_configured()
+
+            # The CXN exposes a switchable base system code; collect it next.
+            if user_input[CONF_MODEL] == MODEL_CXN100:
+                self._pending = user_input
+                return await self.async_step_cxn()
 
             return self.async_create_entry(
                 title=f"Cambridge Audio {user_input[CONF_MODEL]}",
@@ -90,3 +102,31 @@ class CambridgeAudioIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=schema,
             errors=errors,
         )
+
+    async def async_step_cxn(
+        self, user_input: dict | None = None
+    ) -> config_entries.FlowResult:
+        """Choose the CXN's base RC-5 system code (24 or 28)."""
+        if user_input is not None:
+            data = {
+                **self._pending,
+                CONF_CXN_SYSTEM_CODE: int(user_input[CONF_CXN_SYSTEM_CODE]),
+            }
+            return self.async_create_entry(
+                title=f"Cambridge Audio {data[CONF_MODEL]}",
+                data=data,
+            )
+
+        schema = vol.Schema(
+            {
+                vol.Required(
+                    CONF_CXN_SYSTEM_CODE, default=str(CXN_SYSTEM_CODE_DEFAULT)
+                ): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=[str(code) for code in CXN_SYSTEM_CODES],
+                        mode=selector.SelectSelectorMode.LIST,
+                    )
+                ),
+            }
+        )
+        return self.async_show_form(step_id="cxn", data_schema=schema)

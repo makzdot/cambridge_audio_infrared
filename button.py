@@ -13,14 +13,18 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import (
+    CONF_CXN_SYSTEM_CODE,
     CONF_INFRARED_ENTITY_ID,
     CONF_MODEL,
     CXA60_CODES,
     CXA80_CODES,
+    CXN_SYSTEM_CODE_DEFAULT,
     DOMAIN,
     MODEL_CXA60,
     MODEL_CXA80,
+    MODEL_CXN100,
     RC5_SYSTEM_CODE,
+    resolve_cxn_codes,
 )
 from .rc5 import make_rc5_command
 
@@ -85,6 +89,56 @@ CXA80_EXTRA_BUTTONS: tuple[CXAButtonEntityDescription, ...] = (
 
 CXA80_BUTTONS = CXA60_BUTTONS + CXA80_EXTRA_BUTTONS
 
+# CXN100 — a virtual remote for the network player. Codes span several RC-5
+# system codes; see CXN_CODES in const.py.
+CXN_BUTTONS: tuple[CXAButtonEntityDescription, ...] = (
+    # Power
+    CXAButtonEntityDescription(key="power_toggle", name="Power Toggle", command_key="power_toggle"),
+    CXAButtonEntityDescription(key="power_on",     name="Power On",     command_key="power_on"),
+    CXAButtonEntityDescription(key="power_off",    name="Power Off",    command_key="power_off"),
+    # Transport
+    CXAButtonEntityDescription(key="play_pause",   name="Play/Pause",   command_key="play_pause"),
+    CXAButtonEntityDescription(key="stop",         name="Stop",         command_key="stop"),
+    CXAButtonEntityDescription(key="skip_left",    name="Skip Previous", command_key="skip_left"),
+    CXAButtonEntityDescription(key="skip_right",   name="Skip Next",    command_key="skip_right"),
+    CXAButtonEntityDescription(key="random",       name="Random",       command_key="random"),
+    CXAButtonEntityDescription(key="repeat",       name="Repeat",       command_key="repeat"),
+    # Navigation
+    CXAButtonEntityDescription(key="home",         name="Home",         command_key="home"),
+    CXAButtonEntityDescription(key="up",           name="Up",           command_key="up"),
+    CXAButtonEntityDescription(key="down",         name="Down",         command_key="down"),
+    CXAButtonEntityDescription(key="left",         name="Left",         command_key="left"),
+    CXAButtonEntityDescription(key="right",        name="Right",        command_key="right"),
+    CXAButtonEntityDescription(key="select",       name="Select",       command_key="select"),
+    CXAButtonEntityDescription(key="return",       name="Return",       command_key="return"),
+    CXAButtonEntityDescription(key="info",         name="Info",         command_key="info"),
+    CXAButtonEntityDescription(key="more",         name="More",         command_key="more"),
+    CXAButtonEntityDescription(key="digital_input_menu", name="Digital Input Menu", command_key="digital_input_menu"),
+    # Inputs
+    CXAButtonEntityDescription(key="bluetooth",    name="Bluetooth",    command_key="bluetooth"),
+    CXAButtonEntityDescription(key="usb_audio",    name="USB Audio",    command_key="usb_audio"),
+    CXAButtonEntityDescription(key="d1",           name="D1",           command_key="d1"),
+    CXAButtonEntityDescription(key="d2",           name="D2",           command_key="d2"),
+    # Presets
+    CXAButtonEntityDescription(key="preset_1",     name="Preset 1",     command_key="preset_1"),
+    CXAButtonEntityDescription(key="preset_2",     name="Preset 2",     command_key="preset_2"),
+    CXAButtonEntityDescription(key="preset_3",     name="Preset 3",     command_key="preset_3"),
+    CXAButtonEntityDescription(key="preset_4",     name="Preset 4",     command_key="preset_4"),
+    CXAButtonEntityDescription(key="preset_5",     name="Preset 5",     command_key="preset_5"),
+    CXAButtonEntityDescription(key="preset_6",     name="Preset 6",     command_key="preset_6"),
+    CXAButtonEntityDescription(key="preset_7",     name="Preset 7",     command_key="preset_7"),
+    CXAButtonEntityDescription(key="preset_8",     name="Preset 8",     command_key="preset_8"),
+    # Volume / Mute (only active in Digital Pre-amp mode)
+    CXAButtonEntityDescription(key="volume_up",    name="Volume Up",    command_key="volume_up"),
+    CXAButtonEntityDescription(key="volume_down",  name="Volume Down",  command_key="volume_down"),
+    CXAButtonEntityDescription(key="mute_toggle",  name="Mute Toggle",  command_key="mute_toggle"),
+    # Display
+    CXAButtonEntityDescription(key="brightness_toggle", name="Brightness Toggle", command_key="brightness_toggle"),
+    CXAButtonEntityDescription(key="lcd_bright",   name="LCD Bright",   command_key="lcd_bright"),
+    CXAButtonEntityDescription(key="lcd_dim",      name="LCD Dim",      command_key="lcd_dim"),
+    CXAButtonEntityDescription(key="lcd_off",      name="LCD Off",      command_key="lcd_off"),
+)
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -96,12 +150,17 @@ async def async_setup_entry(
     model = data[CONF_MODEL]
     ir_entity_id = data[CONF_INFRARED_ENTITY_ID]
 
+    # Every model resolves to a {command_key: (system_code, command)} table.
     if model == MODEL_CXA60:
         buttons = CXA60_BUTTONS
-        codes = CXA60_CODES
+        codes = {key: (RC5_SYSTEM_CODE, code) for key, code in CXA60_CODES.items()}
     elif model == MODEL_CXA80:
         buttons = CXA80_BUTTONS
-        codes = CXA80_CODES
+        codes = {key: (RC5_SYSTEM_CODE, code) for key, code in CXA80_CODES.items()}
+    elif model == MODEL_CXN100:
+        buttons = CXN_BUTTONS
+        base = int(data.get(CONF_CXN_SYSTEM_CODE, CXN_SYSTEM_CODE_DEFAULT))
+        codes = resolve_cxn_codes(base)
     else:
         return
 
@@ -125,7 +184,7 @@ class CambridgeAudioIRButton(ButtonEntity):
         entry: ConfigEntry,
         ir_entity_id: str,
         description: CXAButtonEntityDescription,
-        codes: dict[str, int],
+        codes: dict[str, tuple[int, int]],
     ) -> None:
         """Initialise the button."""
         self._hass = hass
@@ -142,15 +201,16 @@ class CambridgeAudioIRButton(ButtonEntity):
 
     async def async_press(self) -> None:
         """Send the IR command when the button is pressed."""
-        code = self._codes.get(self.entity_description.command_key)
-        if code is None:
+        entry = self._codes.get(self.entity_description.command_key)
+        if entry is None:
             _LOGGER.error(
                 "No IR code for command key '%s'",
                 self.entity_description.command_key,
             )
             return
 
-        command = make_rc5_command(address=RC5_SYSTEM_CODE, command=code)
+        system_code, code = entry
+        command = make_rc5_command(address=system_code, command=code)
 
         await infrared.async_send_command(
             self._hass,

@@ -17,12 +17,20 @@ from .const import (
     CXA60_CODES,
     CXA80_CODES,
     DOMAIN,
+    MODEL_CXA60,
     MODEL_CXA80,
     RC5_SYSTEM_CODE,
 )
 from .rc5 import decode_rc5
 
 _LOGGER = logging.getLogger(__name__)
+
+# Models whose remote presses can be decoded into events. The CXN spans
+# multiple RC-5 system codes and is not yet supported here.
+_EVENT_CODE_TABLES = {
+    MODEL_CXA60: CXA60_CODES,
+    MODEL_CXA80: CXA80_CODES,
+}
 
 
 async def async_setup_entry(
@@ -36,8 +44,9 @@ async def async_setup_entry(
     if not receiver_entity_id:
         return
 
-    model = data[CONF_MODEL]
-    codes = CXA80_CODES if model == MODEL_CXA80 else CXA60_CODES
+    codes = _EVENT_CODE_TABLES.get(data[CONF_MODEL])
+    if codes is None:
+        return
     async_add_entities(
         [CambridgeAudioRemoteEvent(entry, receiver_entity_id, codes)]
     )

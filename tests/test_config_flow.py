@@ -7,11 +7,13 @@ from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResultType
 
 from custom_components.cambridge_audio_infrared.const import (
+    CONF_CXN_SYSTEM_CODE,
     CONF_INFRARED_ENTITY_ID,
     CONF_MODEL,
     DOMAIN,
     MODEL_CXA60,
     MODEL_CXA80,
+    MODEL_CXN100,
 )
 
 
@@ -139,3 +141,28 @@ async def test_entry_with_receiver(hass):
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["data"][CONF_INFRARED_RECEIVER_ENTITY_ID] == "remote.ir_receiver"
+
+
+async def test_cxn100_two_step_flow(hass):
+    """Selecting CXN100 adds a second step for the RC-5 system code."""
+    init = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+    step2 = await hass.config_entries.flow.async_configure(
+        init["flow_id"],
+        user_input={
+            CONF_MODEL: MODEL_CXN100,
+            CONF_INFRARED_ENTITY_ID: "remote.ir_blaster",
+        },
+    )
+    # A CXN selection routes to the 'cxn' step rather than creating the entry.
+    assert step2["type"] == FlowResultType.FORM
+    assert step2["step_id"] == "cxn"
+
+    result = await hass.config_entries.flow.async_configure(
+        step2["flow_id"], user_input={CONF_CXN_SYSTEM_CODE: "28"}
+    )
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    assert result["data"][CONF_MODEL] == MODEL_CXN100
+    # Stored as an int, not the selector's string value.
+    assert result["data"][CONF_CXN_SYSTEM_CODE] == 28

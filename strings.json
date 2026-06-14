@@ -9,6 +9,13 @@
           "infrared_entity_id": "IR emitter",
           "infrared_receiver_entity_id": "IR receiver (optional, enables remote press events)"
         }
+      },
+      "cxn": {
+        "title": "CXN system code",
+        "description": "Select the RC-5 system code your CXN is set to (Settings menu on the device). Most units use 24.",
+        "data": {
+          "cxn_system_code": "System code"
+        }
       }
     },
     "abort": {
