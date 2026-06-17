@@ -89,7 +89,7 @@ async def test_cxa60_mute_on(hass, mock_send, mock_rc5):
 
     await player.async_mute_volume(True)
 
-    mock_rc5.assert_called_once_with(address=RC5_SYSTEM_CODE, command=50)
+    mock_rc5.assert_called_once_with(address=RC5_SYSTEM_CODE, command=51)
     assert player.is_volume_muted is True
 
 
@@ -100,7 +100,7 @@ async def test_cxa60_mute_off(hass, mock_send, mock_rc5):
 
     await player.async_mute_volume(False)
 
-    mock_rc5.assert_called_once_with(address=RC5_SYSTEM_CODE, command=51)
+    mock_rc5.assert_called_once_with(address=RC5_SYSTEM_CODE, command=50)
     assert player.is_volume_muted is False
 
 

@@ -27,8 +27,11 @@ CXA60_CODES: dict[str, int] = {
     "power_off": 15,
     # Volume / Mute
     "mute_toggle": 13,
-    "mute_on": 50,
-    "mute_off": 51,
+    # NOTE: the official CXA IR code document lists Mute On = 50 / Mute Off = 51,
+    # but real CXA hardware does the opposite (verified on a CXA60). The doc is
+    # wrong, so these are intentionally swapped from the published values.
+    "mute_on": 51,
+    "mute_off": 50,
     "volume_up": 16,
     "volume_down": 17,
     # Display
