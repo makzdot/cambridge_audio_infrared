@@ -45,7 +45,7 @@ class CambridgeAudioRemoteEvent(
 ):
     """Fires an event when a Cambridge Audio remote press is received via IR."""
 
-    _attr_name = "Remote"
+    _attr_translation_key = "remote"
     _attr_device_class = EventDeviceClass.BUTTON
 
     def __init__(

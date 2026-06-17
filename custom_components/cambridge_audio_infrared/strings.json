@@ -22,5 +22,197 @@
       "already_configured": "This device is already configured.",
       "no_emitters": "No IR emitters found. First set up an IR transmitter (for example an ESPHome IR blaster) via Settings → Devices & Services."
     }
+  },
+  "entity": {
+    "button": {
+      "analogue_stereo_direct": {
+        "name": "Analogue Stereo Direct"
+      },
+      "bluetooth": {
+        "name": "Bluetooth"
+      },
+      "brightness_toggle": {
+        "name": "Brightness Toggle"
+      },
+      "d1": {
+        "name": "D1"
+      },
+      "d2": {
+        "name": "D2"
+      },
+      "digital_input_menu": {
+        "name": "Digital Input Menu"
+      },
+      "down": {
+        "name": "Down"
+      },
+      "home": {
+        "name": "Home"
+      },
+      "info": {
+        "name": "Info"
+      },
+      "input_a1": {
+        "name": "Input A1"
+      },
+      "input_a1_balanced": {
+        "name": "Input A1 Balanced"
+      },
+      "input_a2": {
+        "name": "Input A2"
+      },
+      "input_a3": {
+        "name": "Input A3"
+      },
+      "input_a4": {
+        "name": "Input A4"
+      },
+      "input_bluetooth": {
+        "name": "Input Bluetooth"
+      },
+      "input_d1": {
+        "name": "Input D1"
+      },
+      "input_d2": {
+        "name": "Input D2"
+      },
+      "input_d3": {
+        "name": "Input D3"
+      },
+      "input_mp3": {
+        "name": "Input MP3"
+      },
+      "input_usb_audio": {
+        "name": "Input USB Audio"
+      },
+      "lcd_bright": {
+        "name": "LCD Bright"
+      },
+      "lcd_dim": {
+        "name": "LCD Dim"
+      },
+      "lcd_off": {
+        "name": "LCD Off"
+      },
+      "left": {
+        "name": "Left"
+      },
+      "more": {
+        "name": "More"
+      },
+      "mute_off": {
+        "name": "Mute Off"
+      },
+      "mute_on": {
+        "name": "Mute On"
+      },
+      "mute_toggle": {
+        "name": "Mute Toggle"
+      },
+      "play_pause": {
+        "name": "Play/Pause"
+      },
+      "power_off": {
+        "name": "Power Off"
+      },
+      "power_on": {
+        "name": "Power On"
+      },
+      "power_toggle": {
+        "name": "Power Toggle"
+      },
+      "preset_1": {
+        "name": "Preset 1"
+      },
+      "preset_2": {
+        "name": "Preset 2"
+      },
+      "preset_3": {
+        "name": "Preset 3"
+      },
+      "preset_4": {
+        "name": "Preset 4"
+      },
+      "preset_5": {
+        "name": "Preset 5"
+      },
+      "preset_6": {
+        "name": "Preset 6"
+      },
+      "preset_7": {
+        "name": "Preset 7"
+      },
+      "preset_8": {
+        "name": "Preset 8"
+      },
+      "random": {
+        "name": "Random"
+      },
+      "repeat": {
+        "name": "Repeat"
+      },
+      "return": {
+        "name": "Return"
+      },
+      "right": {
+        "name": "Right"
+      },
+      "select": {
+        "name": "Select"
+      },
+      "skip_left": {
+        "name": "Skip Previous"
+      },
+      "skip_right": {
+        "name": "Skip Next"
+      },
+      "source_down": {
+        "name": "Source Down"
+      },
+      "source_up": {
+        "name": "Source Up"
+      },
+      "speaker_a": {
+        "name": "Speaker A"
+      },
+      "speaker_ab": {
+        "name": "Speaker A+B"
+      },
+      "speaker_b": {
+        "name": "Speaker B"
+      },
+      "speaker_select": {
+        "name": "Speaker Select"
+      },
+      "stop": {
+        "name": "Stop"
+      },
+      "trigger_a": {
+        "name": "Trigger A"
+      },
+      "trigger_b": {
+        "name": "Trigger B"
+      },
+      "trigger_c": {
+        "name": "Trigger C"
+      },
+      "up": {
+        "name": "Up"
+      },
+      "usb_audio": {
+        "name": "USB Audio"
+      },
+      "volume_down": {
+        "name": "Volume Down"
+      },
+      "volume_up": {
+        "name": "Volume Up"
+      }
+    },
+    "event": {
+      "remote": {
+        "name": "Remote"
+      }
+    }
   }
 }

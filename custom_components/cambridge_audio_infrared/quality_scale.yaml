@@ -96,10 +96,7 @@ rules:
     status: exempt
     comment: |
       No entities should be disabled by default.
-  entity-translations:
-    status: todo
-    comment: |
-      Entities still use hardcoded names; migrate to translation_key.
+  entity-translations: done
   exception-translations:
     status: exempt
     comment: |
