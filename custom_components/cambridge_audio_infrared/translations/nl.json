@@ -16,11 +16,21 @@
         "data": {
           "cxn_system_code": "Systeemcode"
         }
+      },
+      "reconfigure": {
+        "title": "Cambridge Audio herconfigureren",
+        "description": "Wijzig de IR zender, koppel of wijzig een IR ontvanger, of pas de CXN systeemcode aan.",
+        "data": {
+          "infrared_entity_id": "IR zender",
+          "infrared_receiver_entity_id": "IR ontvanger (optioneel, activeert events bij afstandsbediening)",
+          "cxn_system_code": "Systeemcode"
+        }
       }
     },
     "abort": {
       "already_configured": "Dit apparaat is al geconfigureerd.",
-      "no_emitters": "Geen IR zenders gevonden. Stel eerst een IR zender in (bijvoorbeeld een ESPHome IR blaster) via Instellingen → Apparaten & Diensten."
+      "no_emitters": "Geen IR zenders gevonden. Stel eerst een IR zender in (bijvoorbeeld een ESPHome IR blaster) via Instellingen → Apparaten & Diensten.",
+      "reconfigure_successful": "Herconfiguratie opgeslagen."
     }
   }
 }

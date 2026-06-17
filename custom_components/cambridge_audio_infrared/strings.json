@@ -16,11 +16,21 @@
         "data": {
           "cxn_system_code": "System code"
         }
+      },
+      "reconfigure": {
+        "title": "Reconfigure Cambridge Audio",
+        "description": "Change the IR emitter, attach or change an IR receiver, or adjust the CXN system code.",
+        "data": {
+          "infrared_entity_id": "IR emitter",
+          "infrared_receiver_entity_id": "IR receiver (optional, enables remote press events)",
+          "cxn_system_code": "System code"
+        }
       }
     },
     "abort": {
       "already_configured": "This device is already configured.",
-      "no_emitters": "No IR emitters found. First set up an IR transmitter (for example an ESPHome IR blaster) via Settings → Devices & Services."
+      "no_emitters": "No IR emitters found. First set up an IR transmitter (for example an ESPHome IR blaster) via Settings → Devices & Services.",
+      "reconfigure_successful": "Reconfiguration saved."
     }
   },
   "entity": {

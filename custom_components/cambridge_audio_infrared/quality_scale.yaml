@@ -103,10 +103,7 @@ rules:
       Unknown commands/sources are logged, not raised as exceptions.
   icon-translations:
     status: todo
-  reconfiguration-flow:
-    status: todo
-    comment: |
-      No reconfigure flow yet; a receiver can only be added during setup.
+  reconfiguration-flow: done
   repair-issues:
     status: exempt
     comment: |

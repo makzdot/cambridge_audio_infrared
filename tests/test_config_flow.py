@@ -166,3 +166,48 @@ async def test_cxn100_two_step_flow(hass):
     assert result["data"][CONF_MODEL] == MODEL_CXN100
     # Stored as an int, not the selector's string value.
     assert result["data"][CONF_CXN_SYSTEM_CODE] == 28
+
+
+async def test_reconfigure_adds_receiver(hass):
+    """Reconfigure can attach a receiver to an existing entry without re-adding."""
+    from pytest_homeassistant_custom_component.common import MockConfigEntry
+
+    from custom_components.cambridge_audio_infrared.const import (
+        CONF_INFRARED_RECEIVER_ENTITY_ID,
+    )
+
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_MODEL: MODEL_CXA60,
+            CONF_INFRARED_ENTITY_ID: "remote.ir_blaster",
+        },
+        unique_id="CXA60_remote.ir_blaster",
+    )
+    entry.add_to_hass(hass)
+
+    with (
+        patch(
+            "custom_components.cambridge_audio_infrared.config_flow.infrared.async_get_receivers",
+            return_value=["remote.ir_receiver"],
+        ),
+        patch(
+            "custom_components.cambridge_audio_infrared.async_setup_entry",
+            return_value=True,
+        ),
+    ):
+        result = await entry.start_reconfigure_flow(hass)
+        assert result["type"] == FlowResultType.FORM
+        assert result["step_id"] == "reconfigure"
+
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"],
+            user_input={
+                CONF_INFRARED_ENTITY_ID: "remote.ir_blaster",
+                CONF_INFRARED_RECEIVER_ENTITY_ID: "remote.ir_receiver",
+            },
+        )
+
+    assert result["type"] == FlowResultType.ABORT
+    assert result["reason"] == "reconfigure_successful"
+    assert entry.data[CONF_INFRARED_RECEIVER_ENTITY_ID] == "remote.ir_receiver"
