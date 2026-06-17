@@ -10,7 +10,6 @@ from homeassistant.components.media_player import (
     MediaPlayerEntityFeature,
     MediaPlayerState,
 )
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -50,15 +49,9 @@ async def async_setup_entry(
     ir_entity_id = entry.runtime_data.emitter_entity_id
 
     if model == MODEL_CXA60:
-        async_add_entities(
-            [CambridgeAudioCXA60MediaPlayer(hass, entry, ir_entity_id)],
-            update_before_add=True,
-        )
+        async_add_entities([CambridgeAudioCXA60MediaPlayer(entry, ir_entity_id)])
     elif model == MODEL_CXA80:
-        async_add_entities(
-            [CambridgeAudioCXA80MediaPlayer(hass, entry, ir_entity_id)],
-            update_before_add=True,
-        )
+        async_add_entities([CambridgeAudioCXA80MediaPlayer(entry, ir_entity_id)])
 
 
 class CambridgeAudioCXA60MediaPlayer(MediaPlayerEntity):
@@ -76,13 +69,10 @@ class CambridgeAudioCXA60MediaPlayer(MediaPlayerEntity):
 
     def __init__(
         self,
-        hass: HomeAssistant,
-        entry: ConfigEntry,
+        entry: CambridgeAudioConfigEntry,
         ir_entity_id: str,
     ) -> None:
         """Initialise the media player."""
-        self._hass = hass
-        self._entry = entry
         self._ir_entity_id = ir_entity_id
         self._attr_unique_id = f"{entry.entry_id}_media_player"
         self._attr_device_info = DeviceInfo(
@@ -95,11 +85,6 @@ class CambridgeAudioCXA60MediaPlayer(MediaPlayerEntity):
         self._muted: bool = False
 
     # ── Properties ──────────────────────────────────────────────────────────
-
-    @property
-    def state(self) -> MediaPlayerState:
-        """Return the current state (assumed)."""
-        return self._attr_state  # type: ignore[return-value]
 
     @property
     def is_volume_muted(self) -> bool:
@@ -122,7 +107,7 @@ class CambridgeAudioCXA60MediaPlayer(MediaPlayerEntity):
 
         command = make_rc5_command(address=RC5_SYSTEM_CODE, command=code)
         await infrared.async_send_command(
-            self._hass,
+            self.hass,
             self._ir_entity_id,
             command,
             context=self._context,

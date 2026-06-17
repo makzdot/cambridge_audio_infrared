@@ -48,7 +48,7 @@ async def test_cxa60_turn_on(hass, mock_send, mock_rc5):
     entry.entry_id = "test"
     entry.data = {CONF_MODEL: MODEL_CXA60}
 
-    player = CambridgeAudioCXA60MediaPlayer(hass, entry, "remote.ir_blaster")
+    player = CambridgeAudioCXA60MediaPlayer(entry, "remote.ir_blaster")
     player.hass = hass
 
     await player.async_turn_on()
@@ -69,7 +69,7 @@ async def test_cxa60_turn_off(hass, mock_send, mock_rc5):
     entry.entry_id = "test"
     entry.data = {CONF_MODEL: MODEL_CXA60}
 
-    player = CambridgeAudioCXA60MediaPlayer(hass, entry, "remote.ir_blaster")
+    player = CambridgeAudioCXA60MediaPlayer(entry, "remote.ir_blaster")
     player.hass = hass
     player._attr_state = MediaPlayerState.ON
 
@@ -90,7 +90,7 @@ async def test_cxa60_mute_on(hass, mock_send, mock_rc5):
     entry.entry_id = "test"
     entry.data = {CONF_MODEL: MODEL_CXA60}
 
-    player = CambridgeAudioCXA60MediaPlayer(hass, entry, "remote.ir_blaster")
+    player = CambridgeAudioCXA60MediaPlayer(entry, "remote.ir_blaster")
     player.hass = hass
 
     await player.async_mute_volume(True)
@@ -110,7 +110,7 @@ async def test_cxa60_mute_off(hass, mock_send, mock_rc5):
     entry.entry_id = "test"
     entry.data = {CONF_MODEL: MODEL_CXA60}
 
-    player = CambridgeAudioCXA60MediaPlayer(hass, entry, "remote.ir_blaster")
+    player = CambridgeAudioCXA60MediaPlayer(entry, "remote.ir_blaster")
     player.hass = hass
     player._muted = True
 
@@ -131,7 +131,7 @@ async def test_cxa60_select_source(hass, mock_send, mock_rc5):
     entry.entry_id = "test"
     entry.data = {CONF_MODEL: MODEL_CXA60}
 
-    player = CambridgeAudioCXA60MediaPlayer(hass, entry, "remote.ir_blaster")
+    player = CambridgeAudioCXA60MediaPlayer(entry, "remote.ir_blaster")
     player.hass = hass
 
     await player.async_select_source("D1")
@@ -151,7 +151,7 @@ async def test_cxa60_select_unknown_source_logs_error(hass, mock_send, mock_rc5,
     entry.entry_id = "test"
     entry.data = {CONF_MODEL: MODEL_CXA60}
 
-    player = CambridgeAudioCXA60MediaPlayer(hass, entry, "remote.ir_blaster")
+    player = CambridgeAudioCXA60MediaPlayer(entry, "remote.ir_blaster")
     player.hass = hass
 
     await player.async_select_source("HDMI1")
@@ -173,7 +173,7 @@ async def test_cxa80_bluetooth_source(hass, mock_send, mock_rc5):
     entry.entry_id = "test"
     entry.data = {CONF_MODEL: MODEL_CXA80}
 
-    player = CambridgeAudioCXA80MediaPlayer(hass, entry, "remote.ir_blaster")
+    player = CambridgeAudioCXA80MediaPlayer(entry, "remote.ir_blaster")
     player.hass = hass
 
     await player.async_select_source("Bluetooth")

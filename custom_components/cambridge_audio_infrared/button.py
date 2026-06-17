@@ -7,7 +7,6 @@ from dataclasses import dataclass
 
 from homeassistant.components import infrared
 from homeassistant.components.button import ButtonEntity, ButtonEntityDescription
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -154,7 +153,7 @@ async def async_setup_entry(
     codes = entry.runtime_data.codes
     async_add_entities(
         [
-            CambridgeAudioIRButton(hass, entry, ir_entity_id, description, codes)
+            CambridgeAudioIRButton(entry, ir_entity_id, description, codes)
             for description in buttons
         ]
     )
@@ -168,14 +167,12 @@ class CambridgeAudioIRButton(ButtonEntity):
 
     def __init__(
         self,
-        hass: HomeAssistant,
-        entry: ConfigEntry,
+        entry: CambridgeAudioConfigEntry,
         ir_entity_id: str,
         description: CXAButtonEntityDescription,
         codes: dict[str, tuple[int, int]],
     ) -> None:
         """Initialise the button."""
-        self._hass = hass
         self._ir_entity_id = ir_entity_id
         self._codes = codes
         self.entity_description = description
@@ -201,7 +198,7 @@ class CambridgeAudioIRButton(ButtonEntity):
         command = make_rc5_command(address=system_code, command=code)
 
         await infrared.async_send_command(
-            self._hass,
+            self.hass,
             self._ir_entity_id,
             command,
             context=self._context,
