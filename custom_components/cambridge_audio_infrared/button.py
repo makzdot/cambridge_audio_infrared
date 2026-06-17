@@ -5,23 +5,23 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 
-from homeassistant.components import infrared
 from homeassistant.components.button import ButtonEntity, ButtonEntityDescription
+from homeassistant.components.infrared import InfraredEmitterConsumerEntity
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceInfo
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import CambridgeAudioConfigEntry
 from .const import (
-    CONF_MODEL,
-    DOMAIN,
     MODEL_CXA60,
     MODEL_CXA80,
     MODEL_CXN100,
 )
+from .entity import CambridgeAudioEntity
 from .rc5 import make_rc5_command
 
 _LOGGER = logging.getLogger(__name__)
+
+PARALLEL_UPDATES = 1
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -136,7 +136,7 @@ CXN_BUTTONS: tuple[CXAButtonEntityDescription, ...] = (
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: CambridgeAudioConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up Cambridge Audio button entities."""
     model = entry.runtime_data.model
@@ -159,11 +159,12 @@ async def async_setup_entry(
     )
 
 
-class CambridgeAudioIRButton(ButtonEntity):
+class CambridgeAudioIRButton(
+    CambridgeAudioEntity, InfraredEmitterConsumerEntity, ButtonEntity
+):
     """A single Cambridge Audio remote button."""
 
     entity_description: CXAButtonEntityDescription
-    _attr_has_entity_name = True
 
     def __init__(
         self,
@@ -173,16 +174,10 @@ class CambridgeAudioIRButton(ButtonEntity):
         codes: dict[str, tuple[int, int]],
     ) -> None:
         """Initialise the button."""
-        self._ir_entity_id = ir_entity_id
+        super().__init__(entry, unique_id_suffix=f"button_{description.key}")
+        self._infrared_emitter_entity_id = ir_entity_id
         self._codes = codes
         self.entity_description = description
-        self._attr_unique_id = f"{entry.entry_id}_button_{description.key}"
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, entry.entry_id)},
-            name=f"Cambridge Audio {entry.data[CONF_MODEL]}",
-            manufacturer="Cambridge Audio",
-            model=entry.data[CONF_MODEL],
-        )
 
     async def async_press(self) -> None:
         """Send the IR command when the button is pressed."""
@@ -195,11 +190,6 @@ class CambridgeAudioIRButton(ButtonEntity):
             return
 
         system_code, code = entry
-        command = make_rc5_command(address=system_code, command=code)
-
-        await infrared.async_send_command(
-            self.hass,
-            self._ir_entity_id,
-            command,
-            context=self._context,
+        await self._send_command(
+            make_rc5_command(address=system_code, command=code)
         )

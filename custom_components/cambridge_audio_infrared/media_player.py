@@ -4,31 +4,32 @@ from __future__ import annotations
 
 import logging
 
-from homeassistant.components import infrared
+from homeassistant.components.infrared import InfraredEmitterConsumerEntity
 from homeassistant.components.media_player import (
+    MediaPlayerDeviceClass,
     MediaPlayerEntity,
     MediaPlayerEntityFeature,
     MediaPlayerState,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceInfo
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import CambridgeAudioConfigEntry
 from .const import (
-    CONF_MODEL,
     CXA60_CODES,
     CXA60_SOURCES,
     CXA80_CODES,
     CXA80_SOURCES,
-    DOMAIN,
     MODEL_CXA60,
     MODEL_CXA80,
     RC5_SYSTEM_CODE,
 )
+from .entity import CambridgeAudioEntity
 from .rc5 import make_rc5_command
 
 _LOGGER = logging.getLogger(__name__)
+
+PARALLEL_UPDATES = 1
 
 _SUPPORTED_FEATURES = (
     MediaPlayerEntityFeature.TURN_ON
@@ -42,7 +43,7 @@ _SUPPORTED_FEATURES = (
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: CambridgeAudioConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up Cambridge Audio media player from a config entry."""
     model = entry.runtime_data.model
@@ -54,37 +55,29 @@ async def async_setup_entry(
         async_add_entities([CambridgeAudioCXA80MediaPlayer(entry, ir_entity_id)])
 
 
-class CambridgeAudioCXA60MediaPlayer(MediaPlayerEntity):
+class CambridgeAudioCXA60MediaPlayer(
+    CambridgeAudioEntity, InfraredEmitterConsumerEntity, MediaPlayerEntity
+):
     """Representation of a Cambridge Audio CXA60 amplifier via IR."""
 
-    _attr_has_entity_name = True
-    _attr_name = None  # use device name
+    _attr_name = None  # use the device name
+    _attr_assumed_state = True
+    _attr_device_class = MediaPlayerDeviceClass.RECEIVER
     _attr_supported_features = _SUPPORTED_FEATURES
     _attr_source_list = list(CXA60_SOURCES.keys())
-    _attr_assumed_state = True
     _attr_state = MediaPlayerState.OFF
 
     _codes = CXA60_CODES
     _sources = CXA60_SOURCES
 
     def __init__(
-        self,
-        entry: CambridgeAudioConfigEntry,
-        ir_entity_id: str,
+        self, entry: CambridgeAudioConfigEntry, ir_entity_id: str
     ) -> None:
         """Initialise the media player."""
-        self._ir_entity_id = ir_entity_id
-        self._attr_unique_id = f"{entry.entry_id}_media_player"
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, entry.entry_id)},
-            name=f"Cambridge Audio {entry.data[CONF_MODEL]}",
-            manufacturer="Cambridge Audio",
-            model=entry.data[CONF_MODEL],
-        )
+        super().__init__(entry, unique_id_suffix="media_player")
+        self._infrared_emitter_entity_id = ir_entity_id
         self._source: str | None = None
         self._muted: bool = False
-
-    # ── Properties ──────────────────────────────────────────────────────────
 
     @property
     def is_volume_muted(self) -> bool:
@@ -96,21 +89,14 @@ class CambridgeAudioCXA60MediaPlayer(MediaPlayerEntity):
         """Return the current source (assumed)."""
         return self._source
 
-    # ── Commands ─────────────────────────────────────────────────────────────
-
     async def _send(self, command_key: str) -> None:
         """Send an RC-5 command to the amplifier."""
         code = self._codes.get(command_key)
         if code is None:
             _LOGGER.error("Unknown command key: %s", command_key)
             return
-
-        command = make_rc5_command(address=RC5_SYSTEM_CODE, command=code)
-        await infrared.async_send_command(
-            self.hass,
-            self._ir_entity_id,
-            command,
-            context=self._context,
+        await self._send_command(
+            make_rc5_command(address=RC5_SYSTEM_CODE, command=code)
         )
 
     async def async_turn_on(self) -> None:

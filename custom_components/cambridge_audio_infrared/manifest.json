@@ -7,6 +7,7 @@
   "documentation": "https://www.home-assistant.io/integrations/cambridge_audio_infrared",
   "integration_type": "device",
   "iot_class": "assumed_state",
+  "quality_scale": "bronze",
   "requirements": [],
   "version": "0.1.0"
 }

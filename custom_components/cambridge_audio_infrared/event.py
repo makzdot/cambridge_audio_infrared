@@ -4,24 +4,27 @@ from __future__ import annotations
 
 import logging
 
-from homeassistant.components import infrared
 from homeassistant.components.event import EventDeviceClass, EventEntity
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.components.infrared import (
+    InfraredReceivedSignal,
+    InfraredReceiverConsumerEntity,
+)
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.device_registry import DeviceInfo
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import CambridgeAudioConfigEntry
-from .const import CONF_MODEL, DOMAIN
+from .entity import CambridgeAudioEntity
 from .rc5 import decode_rc5
 
 _LOGGER = logging.getLogger(__name__)
+
+PARALLEL_UPDATES = 0
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: CambridgeAudioConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up the remote event entity if an IR receiver was configured."""
     receiver_entity_id = entry.runtime_data.receiver_entity_id
@@ -38,21 +41,21 @@ async def async_setup_entry(
 
 
 class CambridgeAudioRemoteEvent(
-    infrared.InfraredReceiverConsumerEntity, EventEntity
+    CambridgeAudioEntity, InfraredReceiverConsumerEntity, EventEntity
 ):
     """Fires an event when a Cambridge Audio remote press is received via IR."""
 
-    _attr_has_entity_name = True
     _attr_name = "Remote"
     _attr_device_class = EventDeviceClass.BUTTON
 
     def __init__(
         self,
-        entry: ConfigEntry,
+        entry: CambridgeAudioConfigEntry,
         receiver_entity_id: str,
         codes: dict[str, tuple[int, int]],
     ) -> None:
         """Initialise the remote event entity."""
+        super().__init__(entry, unique_id_suffix="remote")
         self._infrared_receiver_entity_id = receiver_entity_id
         # Reverse map keyed by (system_code, command) so a single device only
         # reacts to its own RC-5 system code(s). The CXN's pre-amp volume/mute
@@ -62,16 +65,9 @@ class CambridgeAudioRemoteEvent(
             (system, command): key for key, (system, command) in codes.items()
         }
         self._attr_event_types = list(codes)
-        self._attr_unique_id = f"{entry.entry_id}_remote"
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, entry.entry_id)},
-            name=f"Cambridge Audio {entry.data[CONF_MODEL]}",
-            manufacturer="Cambridge Audio",
-            model=entry.data[CONF_MODEL],
-        )
 
     @callback
-    def _handle_signal(self, signal: infrared.InfraredReceivedSignal) -> None:
+    def _handle_signal(self, signal: InfraredReceivedSignal) -> None:
         """Decode a received IR signal and fire the matching event."""
         decoded = decode_rc5(signal.timings)
         if decoded is None:

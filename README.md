@@ -24,8 +24,10 @@ The integration is a standard custom component: the code lives under
 custom_components/cambridge_audio_infrared/
 ├── __init__.py
 ├── manifest.json
+├── quality_scale.yaml
 ├── const.py
 ├── rc5.py
+├── entity.py
 ├── config_flow.py
 ├── media_player.py
 ├── button.py

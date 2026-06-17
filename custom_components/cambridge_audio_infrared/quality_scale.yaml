@@ -1,0 +1,131 @@
+rules:
+  # Bronze
+  action-setup:
+    status: exempt
+    comment: |
+      This integration does not provide additional actions.
+  appropriate-polling:
+    status: exempt
+    comment: |
+      This integration does not poll; it sends fire-and-forget IR commands.
+  brands:
+    status: todo
+    comment: |
+      A brands entry for cambridge_audio_infrared still needs to be added.
+  common-modules: done
+  config-flow-test-coverage: done
+  config-flow: done
+  dependency-transparency: done
+  docs-actions:
+    status: exempt
+    comment: |
+      This integration does not provide additional actions.
+  docs-high-level-description:
+    status: todo
+    comment: |
+      The home-assistant.io documentation page still needs to be written.
+  docs-installation-instructions:
+    status: todo
+  docs-removal-instructions:
+    status: todo
+  entity-event-setup: done
+  entity-unique-id: done
+  has-entity-name: done
+  runtime-data: done
+  test-before-configure: done
+  test-before-setup:
+    status: exempt
+    comment: |
+      This integration only proxies commands through an existing infrared
+      entity, so there is no separate connection to validate during setup.
+  unique-config-entry: done
+  # Silver
+  action-exceptions:
+    status: exempt
+    comment: |
+      This integration does not register custom actions.
+  config-entry-unloading: done
+  docs-configuration-parameters:
+    status: todo
+  docs-installation-parameters:
+    status: todo
+  entity-unavailable: done
+  integration-owner: done
+  log-when-unavailable: done
+  parallel-updates: done
+  reauthentication-flow:
+    status: exempt
+    comment: |
+      This integration does not require authentication.
+  test-coverage: done
+  # Gold
+  devices: done
+  diagnostics:
+    status: todo
+  discovery-update-info:
+    status: exempt
+    comment: |
+      This integration does not support discovery.
+  discovery:
+    status: exempt
+    comment: |
+      This integration is configured manually via the config flow.
+  docs-data-update:
+    status: exempt
+    comment: |
+      This integration does not fetch data from devices.
+  docs-examples:
+    status: todo
+  docs-known-limitations:
+    status: todo
+  docs-supported-devices:
+    status: todo
+  docs-supported-functions:
+    status: todo
+  docs-troubleshooting:
+    status: todo
+  docs-use-cases:
+    status: todo
+  dynamic-devices:
+    status: exempt
+    comment: |
+      Each config entry creates a single device.
+  entity-category: done
+  entity-device-class: done
+  entity-disabled-by-default:
+    status: exempt
+    comment: |
+      No entities should be disabled by default.
+  entity-translations:
+    status: todo
+    comment: |
+      Entities still use hardcoded names; migrate to translation_key.
+  exception-translations:
+    status: exempt
+    comment: |
+      Unknown commands/sources are logged, not raised as exceptions.
+  icon-translations:
+    status: todo
+  reconfiguration-flow:
+    status: todo
+    comment: |
+      No reconfigure flow yet; a receiver can only be added during setup.
+  repair-issues:
+    status: exempt
+    comment: |
+      This integration does not have repairable issues.
+  stale-devices:
+    status: exempt
+    comment: |
+      Each config entry manages exactly one device.
+  # Platinum
+  async-dependency:
+    status: exempt
+    comment: |
+      This integration has no external async dependencies.
+  inject-websession:
+    status: exempt
+    comment: |
+      This integration does not make HTTP requests.
+  strict-typing:
+    status: todo
