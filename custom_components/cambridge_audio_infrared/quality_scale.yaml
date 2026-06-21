@@ -60,8 +60,7 @@ rules:
   test-coverage: done
   # Gold
   devices: done
-  diagnostics:
-    status: todo
+  diagnostics: done
   discovery-update-info:
     status: exempt
     comment: |
