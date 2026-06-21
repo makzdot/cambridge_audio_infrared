@@ -1,6 +1,6 @@
 # Cambridge Audio Infrared — Home Assistant Integration
 
-A native Home Assistant integration to control Cambridge Audio devices via infrared, built on the IR platform introduced in Home Assistant 2026.4.
+A native Home Assistant integration to control Cambridge Audio devices via infrared, built on Home Assistant's [infrared platform](https://www.home-assistant.io/integrations/infrared).
 
 Supported models: **CXA60**, **CXA80** (amplifiers), **CXN100** (network player)
 
@@ -8,7 +8,7 @@ Supported models: **CXA60**, **CXA80** (amplifiers), **CXN100** (network player)
 
 ## Requirements
 
-- Home Assistant 2026.4 or newer
+- Home Assistant **2026.6 or newer**. The integration builds on the infrared platform (added in 2026.4) and always loads its remote-event support, which uses the infrared *receiver* API added in 2026.6 — so 2026.6 is the minimum.
 - Any IR transmitter exposed to Home Assistant as an infrared emitter. An ESPHome-based IR blaster is the most common option (see [ESPHome Infrared Proxies](https://github.com/esphome/infrared-proxies)), but any integration that registers with the [infrared platform](https://www.home-assistant.io/integrations/infrared) works.
 
 ---
@@ -32,15 +32,19 @@ custom_components/cambridge_audio_infrared/
 ├── media_player.py
 ├── button.py
 ├── event.py
+├── diagnostics.py
 ├── strings.json
-└── translations/
-    ├── en.json
-    └── nl.json
+├── icons.json
+├── translations/
+│   ├── en.json
+│   └── nl.json
+└── brand/                # bundled icon/logo (HA 2026.3+)
 
 tests/
 ├── conftest.py
 ├── test_rc5.py
 ├── test_cxn.py
+├── test_diagnostics.py
 ├── test_config_flow.py
 ├── test_media_player.py
 └── test_event.py
@@ -90,14 +94,21 @@ See the [Contributing to Home Assistant](https://developers.home-assistant.io/do
 
 1. Go to **Settings → Devices & Services → Add Integration**.
 2. Search for **Cambridge Audio Infrared**.
-3. Select your amplifier model (e.g. CXA60).
+3. Select your model (CXA60, CXA80, or CXN100).
 4. Select the IR emitter entity (e.g. from your ESPHome IR blaster).
-5. Optionally select an IR receiver to get remote-press events (HA 2026.6+).
-6. Click **Submit**.
+5. Optionally select an IR receiver to get remote-press events.
+6. For the CXN100, pick the RC-5 system code (24 or 28) your device is set to.
+7. Click **Submit**.
 
-Home Assistant will create a device with a `media_player` entity and a set of `button` entities.
+Home Assistant creates a device with `button` entities (a virtual remote). The
+CXA60/CXA80 amplifiers also get a `media_player` entity. If you selected an IR
+receiver, an `event` entity is added for physical-remote presses.
 
-> **Note:** IR is one-way, so the integration uses *assumed state*. Home Assistant tracks the last command sent but cannot verify the actual state of the amplifier.
+> **Change settings later:** use the device's **Reconfigure** option to switch the
+> IR emitter, attach or change a receiver, or adjust the CXN system code — no need
+> to remove and re-add the integration.
+
+> **Note:** IR is one-way, so the integration uses *assumed state*. Home Assistant tracks the last command sent but cannot verify the actual state of the device.
 
 ---
 
@@ -245,7 +256,7 @@ The CXA60 uses the **Philips RC-5** protocol:
 | Carrier frequency | 36 kHz |
 | Source | [Official Cambridge Audio IR code document](https://www.cambridgeaudio.com/sites/default/files/compliance/doc/CXA%20IR%20Remote%20Control%20Codes.pdf) |
 
-The integration uses the `RC5Command` class from the [`infrared-protocols`](https://github.com/home-assistant-libs/infrared-protocols) library (introduced in HA 2026.4). This is a hard dependency — HA 2026.4 or newer is required.
+The integration uses the `RC5Command` class from the [`infrared-protocols`](https://github.com/home-assistant-libs/infrared-protocols) library, which ships with Home Assistant's infrared platform. See [Requirements](#requirements) for the minimum Home Assistant version.
 
 ---
 
@@ -262,13 +273,18 @@ Make sure an IR transmitter is already added to Home Assistant via Settings → 
 **State is wrong after power cycling**
 This is expected. Because IR is one-way there is no feedback from the amplifier. You can reset the assumed state by calling `media_player.turn_on` or `media_player.turn_off` explicitly from an automation or the UI.
 
+**Gathering diagnostics**
+On the device page, use the **⋮** menu → **Download diagnostics** to get a JSON file with the configured model, emitter and receiver entities, and their current state — handy when reporting an issue.
+
 ---
 
 ## Roadmap
 
 - [x] CXA80 support (adds Balanced A1 and Bluetooth inputs)
+- [x] CXN100 support (network player, virtual remote)
 - [x] IR receiver support — trigger automations from the physical remote (requires HA 2026.6+ `InfraredReceiverEntity`)
 - [x] Test suite for HA integration quality scale compliance
+- [ ] **CXC CD transport support** — the CXC uses the same RC-5 family (system code 20) and could be added as another IR-only device (it has no network interface, so IR is the only way to control it)
 
 ---
 
