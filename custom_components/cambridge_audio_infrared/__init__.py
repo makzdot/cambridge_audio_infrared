@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
+from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
@@ -43,7 +45,7 @@ class CambridgeAudioRuntimeData:
 type CambridgeAudioConfigEntry = ConfigEntry[CambridgeAudioRuntimeData]
 
 
-def _build_codes(data: dict) -> dict[str, tuple[int, int]]:
+def _build_codes(data: Mapping[str, Any]) -> dict[str, tuple[int, int]]:
     """Resolve the (system_code, command) table for the configured model."""
     model = data[CONF_MODEL]
     if model == MODEL_CXN100:

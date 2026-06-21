@@ -18,7 +18,7 @@ def make_rc5_command(address: int, command: int, toggle: int = 0) -> RC5Command:
 
 def _half_bit_units(value: int) -> int | None | str:
     """Classify a timing as 1 or 2 half-bits, a gap (None), or noise ("bad")."""
-    units = round(abs(value) / RC5_HALF_BIT_US)
+    units = int(round(abs(value) / RC5_HALF_BIT_US))
     if units in (1, 2):
         nominal = units * RC5_HALF_BIT_US
         if abs(abs(value) - nominal) > nominal * _TOLERANCE:
@@ -51,7 +51,7 @@ def decode_rc5(timings: list[int]) -> tuple[int, int, int] | None:
     for value, units in zip(timings[start:], quantized[start:]):
         if units is None:  # gap -> end of this frame
             break
-        if units == "bad":
+        if not isinstance(units, int):  # "bad" -> not a valid half-bit
             return None
         frame.append((value, units))
 

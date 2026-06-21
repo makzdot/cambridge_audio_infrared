@@ -8,6 +8,7 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.components import infrared
 from homeassistant.config_entries import ConfigFlowResult
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers import selector
 
 from .const import (
@@ -23,7 +24,9 @@ from .const import (
 )
 
 
-def _entity_options(hass, entity_ids: list[str]) -> list[selector.SelectOptionDict]:
+def _entity_options(
+    hass: HomeAssistant, entity_ids: list[str]
+) -> list[selector.SelectOptionDict]:
     """Build select options from entity_id strings with friendly-name labels."""
     options = []
     for entity_id in entity_ids:
@@ -74,7 +77,7 @@ class CambridgeAudioIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 data=user_input,
             )
 
-        schema_fields: dict = {
+        schema_fields: dict[Any, Any] = {
             vol.Required(CONF_MODEL): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=SUPPORTED_MODELS,
@@ -164,7 +167,7 @@ class CambridgeAudioIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         emitter_options = _entity_options(self.hass, emitters)
         receiver_options = _entity_options(self.hass, receivers)
 
-        fields: dict = {
+        fields: dict[Any, Any] = {
             vol.Required(
                 CONF_INFRARED_ENTITY_ID,
                 default=entry.data.get(CONF_INFRARED_ENTITY_ID),
