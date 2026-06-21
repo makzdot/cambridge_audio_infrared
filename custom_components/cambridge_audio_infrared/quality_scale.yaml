@@ -101,8 +101,7 @@ rules:
     status: exempt
     comment: |
       Unknown commands/sources are logged, not raised as exceptions.
-  icon-translations:
-    status: todo
+  icon-translations: done
   reconfiguration-flow: done
   repair-issues:
     status: exempt

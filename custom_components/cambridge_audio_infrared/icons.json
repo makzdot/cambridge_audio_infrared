@@ -1,0 +1,194 @@
+{
+  "entity": {
+    "button": {
+      "analogue_stereo_direct": {
+        "default": "mdi:sine-wave"
+      },
+      "bluetooth": {
+        "default": "mdi:bluetooth"
+      },
+      "brightness_toggle": {
+        "default": "mdi:brightness-6"
+      },
+      "d1": {
+        "default": "mdi:audio-input-rca"
+      },
+      "d2": {
+        "default": "mdi:audio-input-rca"
+      },
+      "digital_input_menu": {
+        "default": "mdi:menu"
+      },
+      "down": {
+        "default": "mdi:arrow-down"
+      },
+      "home": {
+        "default": "mdi:home"
+      },
+      "info": {
+        "default": "mdi:information"
+      },
+      "input_a1": {
+        "default": "mdi:audio-input-rca"
+      },
+      "input_a1_balanced": {
+        "default": "mdi:audio-input-xlr"
+      },
+      "input_a2": {
+        "default": "mdi:audio-input-rca"
+      },
+      "input_a3": {
+        "default": "mdi:audio-input-rca"
+      },
+      "input_a4": {
+        "default": "mdi:audio-input-rca"
+      },
+      "input_bluetooth": {
+        "default": "mdi:bluetooth"
+      },
+      "input_d1": {
+        "default": "mdi:audio-input-rca"
+      },
+      "input_d2": {
+        "default": "mdi:audio-input-rca"
+      },
+      "input_d3": {
+        "default": "mdi:audio-input-rca"
+      },
+      "input_mp3": {
+        "default": "mdi:music"
+      },
+      "input_usb_audio": {
+        "default": "mdi:usb"
+      },
+      "lcd_bright": {
+        "default": "mdi:brightness-7"
+      },
+      "lcd_dim": {
+        "default": "mdi:brightness-5"
+      },
+      "lcd_off": {
+        "default": "mdi:brightness-1"
+      },
+      "left": {
+        "default": "mdi:arrow-left"
+      },
+      "more": {
+        "default": "mdi:dots-horizontal"
+      },
+      "mute_off": {
+        "default": "mdi:volume-high"
+      },
+      "mute_on": {
+        "default": "mdi:volume-off"
+      },
+      "mute_toggle": {
+        "default": "mdi:volume-mute"
+      },
+      "play_pause": {
+        "default": "mdi:play-pause"
+      },
+      "power_off": {
+        "default": "mdi:power-off"
+      },
+      "power_on": {
+        "default": "mdi:power"
+      },
+      "power_toggle": {
+        "default": "mdi:power"
+      },
+      "preset_1": {
+        "default": "mdi:numeric-1-circle"
+      },
+      "preset_2": {
+        "default": "mdi:numeric-2-circle"
+      },
+      "preset_3": {
+        "default": "mdi:numeric-3-circle"
+      },
+      "preset_4": {
+        "default": "mdi:numeric-4-circle"
+      },
+      "preset_5": {
+        "default": "mdi:numeric-5-circle"
+      },
+      "preset_6": {
+        "default": "mdi:numeric-6-circle"
+      },
+      "preset_7": {
+        "default": "mdi:numeric-7-circle"
+      },
+      "preset_8": {
+        "default": "mdi:numeric-8-circle"
+      },
+      "random": {
+        "default": "mdi:shuffle-variant"
+      },
+      "repeat": {
+        "default": "mdi:repeat"
+      },
+      "return": {
+        "default": "mdi:keyboard-return"
+      },
+      "right": {
+        "default": "mdi:arrow-right"
+      },
+      "select": {
+        "default": "mdi:check-circle"
+      },
+      "skip_left": {
+        "default": "mdi:skip-previous"
+      },
+      "skip_right": {
+        "default": "mdi:skip-next"
+      },
+      "source_down": {
+        "default": "mdi:arrow-down-bold"
+      },
+      "source_up": {
+        "default": "mdi:arrow-up-bold"
+      },
+      "speaker_a": {
+        "default": "mdi:speaker"
+      },
+      "speaker_ab": {
+        "default": "mdi:speaker-multiple"
+      },
+      "speaker_b": {
+        "default": "mdi:speaker"
+      },
+      "speaker_select": {
+        "default": "mdi:speaker"
+      },
+      "stop": {
+        "default": "mdi:stop"
+      },
+      "trigger_a": {
+        "default": "mdi:flash"
+      },
+      "trigger_b": {
+        "default": "mdi:flash"
+      },
+      "trigger_c": {
+        "default": "mdi:flash"
+      },
+      "up": {
+        "default": "mdi:arrow-up"
+      },
+      "usb_audio": {
+        "default": "mdi:usb"
+      },
+      "volume_down": {
+        "default": "mdi:volume-minus"
+      },
+      "volume_up": {
+        "default": "mdi:volume-plus"
+      }
+    },
+    "event": {
+      "remote": {
+        "default": "mdi:remote"
+      }
+    }
+  }
+}
